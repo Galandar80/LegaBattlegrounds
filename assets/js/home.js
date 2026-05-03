@@ -27,6 +27,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Contact Form
 const contactForm = document.getElementById('contactForm');
 const confirmationMessage = document.getElementById('confirmationMessage');
+const html = window.escapeHTML || (value => String(value ?? ''));
 
 if (contactForm) {
     // Gestione form con Formspree
@@ -99,9 +100,97 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inizializza Firebase e carica le classifiche e gli eventi
     initFirebaseAndLoadRankings();
+    updateHomeNextTournament();
 
 
 });
+
+function parseHomeTournamentDate(torneo) {
+    const value = torneo.dataInizio || torneo.data || torneo.creatoIl || '';
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isHomeUpcomingTournament(torneo) {
+    const date = parseHomeTournamentDate(torneo);
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    return date >= today;
+}
+
+function renderHomeTournamentEmpty(title = 'Nessun torneo futuro programmato') {
+    const container = document.getElementById('homeNextTournament');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="premium-empty" style="grid-column: 1/-1;">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="empty-title">${html(title)}</div>
+            <div class="empty-copy">La prossima data apparira qui appena sara confermata dal team.</div>
+            <a href="tornei.html" class="btn btn-primary">Vai ai tornei</a>
+        </div>`;
+}
+
+function updateHomeNextTournament() {
+    const container = document.getElementById('homeNextTournament');
+    if (!container) return;
+
+    if (!database) {
+        renderHomeTournamentEmpty('Calendario in aggiornamento');
+        return;
+    }
+
+    Promise.all([
+        database.ref('tornei').once('value'),
+        database.ref('cups').once('value')
+    ])
+        .then(([torneiSnapshot, cupsSnapshot]) => {
+            const tornei = torneiSnapshot.val() || {};
+            const cups = cupsSnapshot.val() || {};
+            const next = Object.entries(tornei)
+                .filter(([_, torneo]) => isHomeUpcomingTournament(torneo))
+                .sort((a, b) => parseHomeTournamentDate(a[1]) - parseHomeTournamentDate(b[1]))[0];
+
+            if (!next) {
+                renderHomeTournamentEmpty();
+                return;
+            }
+
+            const [, torneo] = next;
+            const data = parseHomeTournamentDate(torneo);
+            const formattedData = data ? data.toLocaleDateString('it-IT', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }) : 'Data da definire';
+            const imageUrl = torneo.immagine && window.safeURL ? window.safeURL(torneo.immagine, '') : (torneo.immagine || '');
+            const cupName = torneo.cupId ? (cups[torneo.cupId]?.name || 'Si') : 'No';
+
+            container.innerHTML = `
+                <article class="tournament-card home-next-tournament-card" style="grid-column: 1/-1;">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${html(torneo.nome || 'Torneo')}" class="tournament-card-image" loading="lazy">` : ''}
+                    <div class="tournament-date">
+                        <i class="far fa-calendar"></i> ${html(formattedData)}
+                    </div>
+                    <h3 class="tournament-title">${html(torneo.nome || 'Torneo Battlegrounds League')}</h3>
+                    ${torneo.luogo ? `<div class="tournament-location"><i class="fas fa-map-marker-alt"></i> ${html(torneo.luogo)}</div>` : ''}
+                    <div class="tournament-details">
+                        <p><strong>Formato:</strong> ${html(torneo.tipo || torneo.formato || 'Battlegrounds')}</p>
+                        <p><strong>Coppa:</strong> ${html(cupName)}</p>
+                        <p><strong>Iscrizioni:</strong> ${torneo.iscrizioneAperta === false ? 'Chiuse' : 'Aperte'}</p>
+                    </div>
+                    <div class="tournament-action">
+                        <a href="tornei.html#nextTournaments" class="btn btn-primary">Dettagli e iscrizione</a>
+                    </div>
+                </article>`;
+        })
+        .catch(error => {
+            console.error("Errore nel caricamento del prossimo torneo:", error);
+            renderHomeTournamentEmpty('Prossimo torneo non disponibile');
+        });
+}
 
 // Funzione per aggiornare la classifica top players
 function updateTopPlayers(torneiData) {
@@ -506,4 +595,3 @@ function updateStats(stats) {
     // Avvia l'animazione dei contatori
     animateCounters();
 }
-const html = window.escapeHTML || (value => String(value ?? ''));

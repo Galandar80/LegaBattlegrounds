@@ -19,6 +19,7 @@
     <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
@@ -39,6 +40,7 @@
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
                     <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
+                    <li class="nav-item"><a href="account.html" class="nav-link"><i class="fas fa-user"></i> Area Utente</a></li>
                     <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
                             Admin</a></li>
                 </ul>
@@ -139,6 +141,19 @@
 
     <!-- Sezione Eventi rimossa -->
 
+    <section class="section-container fade-in home-next-tournament" aria-labelledby="home-next-tournament-title">
+        <div class="container">
+            <h2 id="home-next-tournament-title" class="section-title"><i class="fas fa-calendar-check"></i> Prossimo Torneo</h2>
+            <div id="homeNextTournament" class="upcoming-tournaments-grid">
+                <div class="premium-empty" style="grid-column: 1/-1;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <div class="empty-title">Caricamento torneo</div>
+                    <div class="empty-copy">Stiamo recuperando la prossima data della Battlegrounds League.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- Sezione Partner rimossa -->
 
@@ -197,6 +212,7 @@
     <!-- JavaScript -->
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/user-auth.js"></script>
     <script src="assets/js/home.js"></script>
     <script src="assets/js/visual-fx.js"></script>
 </body>

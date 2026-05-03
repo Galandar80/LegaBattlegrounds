@@ -68,6 +68,11 @@
                     <input type="text" id="tipoTorneo" placeholder="Tipo torneo (es. Battlegrounds)" style="width: 100%">
                     <input type="date" id="dataTorneo" style="width: 100%">
                     <input type="url" id="linkChallonge" placeholder="Link Challonge (opzionale)" style="width: 100%">
+                    <input type="url" id="immagineTorneo" placeholder="URL immagine torneo (opzionale)" style="width: 100%">
+                    <select id="nuovoTorneoIscrizione" style="width: 100%">
+                        <option value="true">Iscrizioni aperte</option>
+                        <option value="false">Iscrizioni chiuse</option>
+                    </select>
                     <select id="nuovoTorneoCoppa" style="width: 100%">
                         <option value="">Nessuna Coppa</option>
                     </select>
@@ -166,6 +171,7 @@
 
                 <div class="tabs">
                     <div class="tab active" data-tab="giocatori"><i class="fas fa-users"></i> Giocatori</div>
+                    <div class="tab" data-tab="iscrizioni"><i class="fas fa-clipboard-list"></i> Iscrizioni</div>
                     <div class="tab" data-tab="impostazioni"><i class="fas fa-cog"></i> Impostazioni</div>
                 </div>
 
@@ -192,6 +198,14 @@
                     </div>
                 </div>
 
+                <div class="tab-content" id="tab-iscrizioni">
+                    <div id="iscrizioniGrid" class="giocatori-grid">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i> Caricamento iscrizioni...
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tab Impostazioni -->
                 <div class="tab-content" id="tab-impostazioni">
                     <div class="flex-group" style="flex-direction: column; gap: 15px;">
@@ -211,6 +225,18 @@
                             <label for="editLinkChallonge">Link Challonge:</label>
                             <input type="url" id="editLinkChallonge" placeholder="https://challonge.com/it/..."
                                 style="width: 100%">
+                        </div>
+                        <div>
+                            <label for="editImmagineTorneo">Immagine Torneo:</label>
+                            <input type="url" id="editImmagineTorneo" placeholder="https://..."
+                                style="width: 100%">
+                        </div>
+                        <div>
+                            <label for="editIscrizioneTorneo">Iscrizioni:</label>
+                            <select id="editIscrizioneTorneo" style="width: 100%">
+                                <option value="true">Aperte</option>
+                                <option value="false">Chiuse</option>
+                            </select>
                         </div>
                         <div>
                             <label for="editTorneoCoppa">Coppa Associata:</label>
@@ -402,6 +428,10 @@
                     // Aggiungi classe active al tab cliccato
                     this.classList.add('active');
                     document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
+
+                    if (this.dataset.tab === 'iscrizioni' && torneoSelezionatoId) {
+                        caricaIscrizioniTorneo(torneoSelezionatoId);
+                    }
                 });
             });
 
@@ -521,7 +551,7 @@
             container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento tornei in corso...</div>';
 
             database.ref('tornei').once('value')
-                .then(snapshot => {
+                .then(async snapshot => {
                     torneiData = snapshot.val() || {};
                     let tornei = Object.entries(torneiData);
 
@@ -558,10 +588,24 @@
                         return;
                     }
 
+                    const [iscrizioniCounts, cupsSnapshot] = await Promise.all([
+                        Promise.all(
+                            torneiPagina.map(([torneoId]) =>
+                                database.ref(`iscrizioni/${torneoId}`).once('value')
+                                    .then(iscrizioniSnapshot => [torneoId, iscrizioniSnapshot.numChildren()])
+                            )
+                        ).then(Object.fromEntries),
+                        database.ref('cups').once('value')
+                    ]);
+                    const cups = cupsSnapshot.val() || {};
+
                     // Visualizza i tornei
                     torneiPagina.forEach(([torneoId, torneo]) => {
                         const giocatori = torneo.giocatori || {};
                         const numGiocatori = Object.keys(giocatori).length;
+                        const numIscritti = iscrizioniCounts[torneoId] || 0;
+                        const imageUrl = torneo.immagine || '';
+                        const cupName = torneo.cupId ? (cups[torneo.cupId]?.name || 'Si') : 'No';
 
                         // Trova il vincitore
                         let vincitore = { nome: 'Nessuno', punti: 0 };
@@ -578,8 +622,11 @@
                                 <h3>${torneo.nome}</h3>
                             </div>
                             <div class="torneo-item-body">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${torneo.nome}" style="width:100%; max-height:140px; object-fit:cover; border-radius:6px; margin-bottom:10px;">` : ''}
                                 <p><i class="fas fa-calendar"></i> ${new Date(torneo.creatoIl).toLocaleDateString()}</p>
                                 <p><i class="fas fa-users"></i> ${numGiocatori} giocatori</p>
+                                <p><i class="fas fa-clipboard-list"></i> ${numIscritti} iscritti online</p>
+                                <p><i class="fas fa-trophy"></i> Coppa: ${cupName}</p>
                                 ${torneo.tipo ? `<p><i class="fas fa-tag"></i> ${torneo.tipo}</p>` : ''}
                                 ${torneo.dataInizio ? `<p><i class="fas fa-calendar-day"></i> ${torneo.dataInizio}</p>` : ''}
                                 ${torneo.linkChallonge ? `<p><i class="fas fa-trophy"></i> <a href="${torneo.linkChallonge}" target="_blank" class="challonge-link">Bracket Challonge</a></p>` : ''}
@@ -652,6 +699,8 @@
             const tipo = document.getElementById('tipoTorneo').value.trim();
             const data = document.getElementById('dataTorneo').value;
             const linkChallonge = document.getElementById('linkChallonge').value.trim();
+            const immagine = document.getElementById('immagineTorneo').value.trim();
+            const iscrizioneAperta = document.getElementById('nuovoTorneoIscrizione').value === 'true';
 
             if (!nome) {
                 showAlert('Inserisci un nome per il torneo!', 'error');
@@ -663,12 +712,14 @@
             const nuovoTorneo = {
                 nome: nome,
                 giocatori: {},
+                iscrizioneAperta,
                 creatoIl: new Date().toISOString()
             };
 
             if (tipo) nuovoTorneo.tipo = tipo;
             if (data) nuovoTorneo.dataInizio = data;
             if (linkChallonge) nuovoTorneo.linkChallonge = linkChallonge;
+            if (immagine) nuovoTorneo.immagine = immagine;
             if (cupId) nuovoTorneo.cupId = cupId;
 
             database.ref('tornei').push(nuovoTorneo)
@@ -677,6 +728,8 @@
                     document.getElementById('tipoTorneo').value = '';
                     document.getElementById('dataTorneo').value = '';
                     document.getElementById('linkChallonge').value = '';
+                    document.getElementById('immagineTorneo').value = '';
+                    document.getElementById('nuovoTorneoIscrizione').value = 'true';
                     document.getElementById('nuovoTorneoCoppa').value = '';
                     showAlert(`Torneo "${nome}" creato con successo!`);
                     caricaTornei();
@@ -709,6 +762,8 @@
             document.getElementById('editTipoTorneo').value = torneo.tipo || '';
             document.getElementById('editDataTorneo').value = torneo.dataInizio || '';
             document.getElementById('editLinkChallonge').value = torneo.linkChallonge || '';
+            document.getElementById('editImmagineTorneo').value = torneo.immagine || '';
+            document.getElementById('editIscrizioneTorneo').value = torneo.iscrizioneAperta === false ? 'false' : 'true';
             document.getElementById('editTorneoCoppa').value = torneo.cupId || '';
 
             // Attiva il tab giocatori
@@ -719,6 +774,7 @@
 
             // Carica i giocatori
             caricaGiocatoriTorneo(torneoId);
+            caricaIscrizioniTorneo(torneoId);
         }
 
         // Carica i giocatori di un torneo
@@ -729,38 +785,91 @@
 
             container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento giocatori...</div>';
 
-            database.ref(`tornei/${torneoId}`).once('value')
-                .then(snapshot => {
-                    const torneo = snapshot.val() || {};
+            Promise.all([
+                database.ref(`tornei/${torneoId}`).once('value'),
+                database.ref(`iscrizioni/${torneoId}`).once('value')
+            ])
+                .then(([torneoSnapshot, iscrizioniSnapshot]) => {
+                    const torneo = torneoSnapshot.val() || {};
                     const giocatori = torneo.giocatori || {};
-                    let giocatoriArray = Object.entries(giocatori);
+                    const iscrizioni = iscrizioniSnapshot.val() || {};
 
-                    // Filtra i giocatori
+                    const importedUserIds = new Set(
+                        Object.values(giocatori)
+                            .map(giocatore => giocatore.userId)
+                            .filter(Boolean)
+                    );
+
+                    let giocatoriArray = Object.entries(giocatori).map(([id, giocatore]) => ({
+                        id,
+                        type: 'player',
+                        name: giocatore.nome || 'Giocatore',
+                        giocatore
+                    }));
+
+                    const iscrittiOnline = Object.entries(iscrizioni)
+                        .filter(([uid]) => !importedUserIds.has(uid))
+                        .map(([uid, iscrizione]) => ({
+                            id: uid,
+                            type: 'signup',
+                            name: iscrizione.nickname || iscrizione.displayName || iscrizione.email || 'Utente registrato',
+                            iscrizione
+                        }));
+
+                    let righe = [...iscrittiOnline, ...giocatoriArray];
+
                     if (searchTerm) {
-                        giocatoriArray = giocatoriArray.filter(([_, giocatore]) =>
-                            giocatore.nome.toLowerCase().includes(searchTerm));
+                        righe = righe.filter(item => item.name.toLowerCase().includes(searchTerm));
                     }
 
-                    // Ordina i giocatori
                     if (ordinamento === 'nome') {
-                        giocatoriArray.sort((a, b) => a[1].nome.localeCompare(b[1].nome));
+                        righe.sort((a, b) => a.name.localeCompare(b.name));
                     } else if (ordinamento === 'punti') {
-                        giocatoriArray.sort((a, b) => (b[1].punti || 0) - (a[1].punti || 0));
+                        righe.sort((a, b) => (b.giocatore?.punti || 0) - (a.giocatore?.punti || 0));
                     } else if (ordinamento === 'posizione') {
-                        giocatoriArray.sort((a, b) => (a[1].posizione || 999) - (b[1].posizione || 999));
+                        righe.sort((a, b) => (a.giocatore?.posizione || 999) - (b.giocatore?.posizione || 999));
                     }
 
                     container.innerHTML = '';
 
-                    if (giocatoriArray.length === 0) {
-                        container.innerHTML = '<div class="no-data">Nessun giocatore trovato</div>';
+                    if (righe.length === 0) {
+                        container.innerHTML = '<div class="no-data">Nessun giocatore o iscritto trovato</div>';
                         return;
                     }
 
-                    // Visualizza i giocatori
-                    giocatoriArray.forEach(([giocatoreId, giocatore]) => {
+                    righe.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'giocatore-card';
+
+                        if (item.type === 'signup') {
+                            const iscrizione = item.iscrizione;
+                            card.innerHTML = `
+                                <div class="giocatore-nome">${item.name}</div>
+                                <div class="giocatore-stats">
+                                    <div class="giocatore-stat">
+                                        <div class="giocatore-stat-value">Online</div>
+                                        <div class="giocatore-stat-label">Origine</div>
+                                    </div>
+                                    <div class="giocatore-stat">
+                                        <div class="giocatore-stat-value">${iscrizione.status || 'confirmed'}</div>
+                                        <div class="giocatore-stat-label">Stato</div>
+                                    </div>
+                                    <div class="giocatore-stat">
+                                        <div class="giocatore-stat-value">${iscrizione.createdAt ? new Date(iscrizione.createdAt).toLocaleDateString() : '-'}</div>
+                                        <div class="giocatore-stat-label">Iscritto</div>
+                                    </div>
+                                </div>
+                                <div class="flex-group" style="margin-top: 10px;">
+                                    <button onclick="importaIscrittoComeGiocatore('${torneoId}', '${item.id}')" class="small-button"><i class="fas fa-user-plus"></i> Importa nei giocatori</button>
+                                    <button onclick="rimuoviIscrizione('${torneoId}', '${item.id}')" class="small-button" style="background: #dc3545"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+                            container.appendChild(card);
+                            return;
+                        }
+
+                        const giocatoreId = item.id;
+                        const giocatore = item.giocatore;
                         card.innerHTML = `
                             <div class="giocatore-nome">${giocatore.nome}</div>
                             <div class="giocatore-stats">

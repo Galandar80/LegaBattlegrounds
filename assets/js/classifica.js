@@ -166,100 +166,129 @@ function updateStoricoGiocatori() {
     });
 }
 
-// Funzione per aggiornare i Punti Totali con colonne dinamiche per le Coppe
+function collectRankingStats(tornei) {
+    const giocatoriStats = {};
+
+    tornei.forEach(torneo => {
+        Object.values(torneo.giocatori || {}).forEach(giocatore => {
+            const nome = giocatore.nome;
+            const punti = parseInt(giocatore.punti, 10) || 0;
+            if (!nome) return;
+
+            if (!giocatoriStats[nome]) {
+                giocatoriStats[nome] = { total: 0 };
+            }
+
+            giocatoriStats[nome].total += punti;
+        });
+    });
+
+    return Object.entries(giocatoriStats).sort((a, b) => b[1].total - a[1].total);
+}
+
+function renderRankingRows(container, sorted, emptyColspan, emptyTitle, emptyCopy) {
+    const maxPunti = sorted.length > 0 ? sorted[0][1].total : 1;
+
+    if (sorted.length === 0) {
+        container.innerHTML = emptyRow(emptyColspan, 'fas fa-star', emptyTitle, emptyCopy);
+        return;
+    }
+
+    sorted.forEach(([nome, stats], idx) => {
+        const row = document.createElement('tr');
+        const rank = idx + 1;
+        const medal = rank <= 3 ? String(rank) : '';
+        const medalClass = rank === 1 ? 'medal-gold' : rank === 2 ? 'medal-silver' : rank === 3 ? 'medal-bronze' : '';
+
+        if (rank <= 3) row.classList.add(`rank-top-${rank}`);
+
+        const pct = maxPunti > 0 ? Math.round((stats.total / maxPunti) * 100) : 0;
+        const barHtml = `
+            <div class="points-bar-wrap">
+                <span class="points-val"><strong>${stats.total}</strong></span>
+                <div class="points-bar-bg"><div class="points-bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+
+        const nameCell = document.createElement('td');
+        nameCell.className = 'player-name';
+        if (medal) {
+            const medalSpan = document.createElement('span');
+            medalSpan.className = `rank-medal ${medalClass}`;
+            medalSpan.textContent = medal;
+            nameCell.appendChild(medalSpan);
+        }
+        nameCell.appendChild(document.createTextNode(nome));
+        nameCell.addEventListener('click', () => showUserProfile(null, nome));
+
+        const pointsCell = document.createElement('td');
+        pointsCell.innerHTML = barHtml;
+        row.append(nameCell, pointsCell);
+        container.appendChild(row);
+    });
+}
+
+// Funzione per aggiornare i Punti Totali generali, escludendo le Coppe
 async function updatePuntiTotali() {
     const container = document.getElementById('puntiTotaliBody');
     const headerRow = document.getElementById('puntiTotaliHeader');
     container.innerHTML = '';
 
-    // Recupera le coppe
-    const cupsSnapshot = await database.ref('cups').once('value');
-    const cups = cupsSnapshot.val() || {};
-    const cupsArray = Object.entries(cups);
-
-    // Aggiorna l'header con le coppe
     headerRow.innerHTML = '<th>Giocatore</th><th>Punti Totali</th>';
-    cupsArray.forEach(([id, cup]) => {
-        const th = document.createElement('th');
-        th.textContent = cup.name;
-        headerRow.appendChild(th);
-    });
-
-    // Oggetto per memorizzare i punti (totali e per coppa)
-    const giocatoriStats = {};
-
-    // Raccolgo dati dai tornei
-    Object.values(torneiData).forEach(torneo => {
-        const cupId = torneo.cupId;
-        Object.values(torneo.giocatori || {}).forEach(giocatore => {
-            const nome = giocatore.nome;
-            const punti = parseInt(giocatore.punti) || 0;
-
-            if (!giocatoriStats[nome]) {
-                giocatoriStats[nome] = { total: 0, cups: {} };
-            }
-            
-            giocatoriStats[nome].total += punti;
-            if (cupId) {
-                giocatoriStats[nome].cups[cupId] = (giocatoriStats[nome].cups[cupId] || 0) + punti;
-            }
-        });
-    });
-
-    // Rendering righe
-    const sorted = Object.entries(giocatoriStats).sort((a, b) => b[1].total - a[1].total);
-    const maxPunti = sorted.length > 0 ? sorted[0][1].total : 1;
+    const torneiGenerali = Object.values(torneiData).filter(torneo => !torneo.cupId);
+    const sorted = collectRankingStats(torneiGenerali);
 
     if (sorted.length === 0) {
         updateRankingPodium([]);
-        container.innerHTML = emptyRow(2 + cupsArray.length, 'fas fa-star', 'Ranking generale in attesa', 'I punti totali verranno mostrati dopo la pubblicazione dei risultati.');
+        container.innerHTML = emptyRow(2, 'fas fa-star', 'Ranking generale in attesa', 'I punti totali verranno mostrati dopo la pubblicazione dei risultati dei tornei non associati a coppe.');
         return;
     }
 
     updateRankingPodium(sorted);
+    renderRankingRows(container, sorted, 2, 'Ranking generale in attesa', 'I punti totali verranno mostrati dopo la pubblicazione dei risultati.');
+}
 
-    sorted.forEach(([nome, stats], idx) => {
-            const row = document.createElement('tr');
-            const rank = idx + 1;
+async function updateCoppeRankings() {
+    const container = document.getElementById('coppeRankingContainer');
+    if (!container) return;
 
-            // Medal badge for top 3
-            const medal = rank <= 3 ? String(rank) : '';
-            const medalClass = rank === 1 ? 'medal-gold' : rank === 2 ? 'medal-silver' : rank === 3 ? 'medal-bronze' : '';
+    const cupsSnapshot = await database.ref('cups').once('value');
+    const cups = cupsSnapshot.val() || {};
+    const cupsArray = Object.entries(cups);
 
-            if (rank <= 3) row.classList.add(`rank-top-${rank}`);
+    container.innerHTML = '';
+    if (cupsArray.length === 0) {
+        container.innerHTML = `
+            <div class="premium-empty">
+                <i class="fas fa-trophy"></i>
+                <div class="empty-title">Nessuna coppa configurata</div>
+                <div class="empty-copy">Le classifiche coppa appariranno quando verranno create dal backend.</div>
+            </div>`;
+        return;
+    }
 
-            // Progress bar for total points
-            const pct = maxPunti > 0 ? Math.round((stats.total / maxPunti) * 100) : 0;
-            const barHtml = `
-                <div class="points-bar-wrap">
-                    <span class="points-val"><strong>${stats.total}</strong></span>
-                    <div class="points-bar-bg"><div class="points-bar-fill" style="width:${pct}%"></div></div>
-                </div>`;
+    cupsArray.forEach(([cupId, cup]) => {
+        const section = document.createElement('section');
+        section.className = 'ranking-card-shell table-section cup-ranking-card';
+        section.innerHTML = `
+            <h3 class="section-title premium-table-title"><i class="fas fa-trophy"></i> ${html(cup.name || 'Coppa')}</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Giocatore</th>
+                            <th>Punti Coppa</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>`;
 
-            const nameCell = document.createElement('td');
-            nameCell.className = 'player-name';
-            if (medal) {
-                const medalSpan = document.createElement('span');
-                medalSpan.className = `rank-medal ${medalClass}`;
-                medalSpan.textContent = medal;
-                nameCell.appendChild(medalSpan);
-            }
-            nameCell.appendChild(document.createTextNode(nome));
-            nameCell.addEventListener('click', () => showUserProfile(null, nome));
-
-            const pointsCell = document.createElement('td');
-            pointsCell.innerHTML = barHtml;
-            row.append(nameCell, pointsCell);
-
-            // Aggiungi colonne per ogni coppa
-            cupsArray.forEach(([id, _]) => {
-                const cupPunti = stats.cups[id] || 0;
-                const td = document.createElement('td');
-                td.textContent = cupPunti > 0 ? cupPunti : '-';
-                row.appendChild(td);
-            });
-            container.appendChild(row);
-        });
+        const tbody = section.querySelector('tbody');
+        const torneiCoppa = Object.values(torneiData).filter(torneo => torneo.cupId === cupId);
+        const sorted = collectRankingStats(torneiCoppa);
+        renderRankingRows(tbody, sorted, 2, 'Coppa in attesa', 'I punti di questa coppa verranno mostrati dopo i primi risultati.');
+        container.appendChild(section);
+    });
 }
 
 // Funzione per mostrare il profilo utente
@@ -399,6 +428,18 @@ function init() {
             updateClassificaTorneo();
             updateStoricoGiocatori();
             updatePuntiTotali();
+            updateCoppeRankings().catch(error => {
+                console.error("Errore nel caricamento delle classifiche coppa:", error);
+                const container = document.getElementById('coppeRankingContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="premium-empty">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="empty-title">Classifiche coppa non disponibili</div>
+                            <div class="empty-copy">Riprova piu tardi o controlla la configurazione delle coppe.</div>
+                        </div>`;
+                }
+            });
         })
         .catch(error => {
             console.error("Errore nel caricamento dei dati:", error);

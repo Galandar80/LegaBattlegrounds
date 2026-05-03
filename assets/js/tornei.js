@@ -1,6 +1,36 @@
 // Firebase configuration handled in firebase-config.js
-// database is already initialized in firebase-config.js
+// database/auth are initialized in firebase-config.js
 const html = window.escapeHTML || (value => String(value ?? ''));
+
+function tournamentDateValue(torneo) {
+    return torneo.dataInizio || torneo.data || torneo.creatoIl || '';
+}
+
+function parseTournamentDate(torneo) {
+    const value = tournamentDateValue(torneo);
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatTournamentDate(torneo) {
+    const date = parseTournamentDate(torneo);
+    if (!date) return 'Data da definire';
+    return date.toLocaleDateString('it-IT', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
+function isUpcomingTournament(torneo) {
+    const date = parseTournamentDate(torneo);
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    return date >= today;
+}
 
 function renderTournamentEmpty(container, title = 'Nessun torneo programmato') {
     container.innerHTML = `
@@ -12,109 +42,204 @@ function renderTournamentEmpty(container, title = 'Nessun torneo programmato') {
         </div>`;
 }
 
+function registrationButton(torneoId, torneo, currentUser, iscrizioni) {
+    const iscrizioneAperta = torneo.iscrizioneAperta !== false;
+    const alreadyRegistered = Boolean(currentUser && iscrizioni && iscrizioni[currentUser.uid]);
 
+    if (!iscrizioneAperta) {
+        return '<button class="btn btn-secondary tournament-signup-button" type="button" disabled>Iscrizioni chiuse</button>';
+    }
 
+    if (!currentUser) {
+        return '<a href="account.html?next=tornei.html" class="btn btn-secondary">Accedi per iscriverti</a>';
+    }
 
+    if (alreadyRegistered) {
+        return `<button class="btn btn-secondary tournament-unsubscribe-button" type="button" data-tournament-id="${html(torneoId)}">Disiscriviti</button>`;
+    }
 
-
-// Inizializzazione all'avvio
-function init() {
-
-
-    // Altri inizializzazioni se necessario
-    loadUpcomingTournaments();
+    return `<button class="btn btn-primary tournament-signup-button" type="button" data-tournament-id="${html(torneoId)}">Iscriviti</button>`;
 }
 
-// Carica tornei imminenti da Firebase (se disponibili)
+function renderSignupList(torneo, iscrizioni) {
+    const byKey = new Map();
+
+    Object.entries(iscrizioni || {}).forEach(([uid, iscrizione]) => {
+        const name = iscrizione.nickname || iscrizione.displayName || iscrizione.nome || iscrizione.email || 'Giocatore registrato';
+        byKey.set(uid, name);
+    });
+
+    Object.values(torneo.giocatori || {}).forEach(giocatore => {
+        const name = giocatore.nome || giocatore.displayName;
+        if (!name) return;
+        const key = giocatore.userId || `manual:${name.toLowerCase()}`;
+        if (!byKey.has(key)) {
+            byKey.set(key, name);
+        }
+    });
+
+    if (byKey.size === 0) {
+        return '<div class="tournament-signups-empty">Nessun iscritto al momento</div>';
+    }
+
+    const names = Array.from(byKey.values())
+        .sort((a, b) => a.localeCompare(b, 'it'));
+
+    return `
+        <div class="tournament-signups">
+            <strong>Iscritti (${names.length})</strong>
+            <ul>
+                ${names.map(name => `<li>${html(name)}</li>`).join('')}
+            </ul>
+        </div>`;
+}
+
+function tournamentImage(torneo) {
+    if (!torneo.immagine) return '';
+    const src = window.safeURL ? window.safeURL(torneo.immagine, '') : torneo.immagine;
+    if (!src) return '';
+    return `<img src="${src}" alt="${html(torneo.nome || 'Torneo')}" class="tournament-card-image" loading="lazy">`;
+}
+
+function cupInfo(torneo, cups) {
+    if (!torneo.cupId) {
+        return '<p><strong>Coppa:</strong> No</p>';
+    }
+    const cup = cups && cups[torneo.cupId];
+    return `<p><strong>Coppa:</strong> ${html(cup?.name || 'Si')}</p>`;
+}
+
+function wireTournamentButtons() {
+    document.querySelectorAll('.tournament-signup-button[data-tournament-id]').forEach(button => {
+        button.addEventListener('click', () => {
+            if (!window.UserAuth || !window.UserAuth.signupToTournament) {
+                alert('Accesso utenti non disponibile. Riprova tra poco.');
+                return;
+            }
+            const torneoId = button.getAttribute('data-tournament-id');
+            button.disabled = true;
+            button.textContent = 'Iscrizione...';
+            window.UserAuth.signupToTournament(torneoId)
+                .then(() => {
+                    loadUpcomingTournaments();
+                })
+                .catch(error => {
+                    button.disabled = false;
+                    button.textContent = 'Iscriviti';
+                    alert(error.message || 'Errore durante l iscrizione.');
+                });
+        });
+    });
+
+    document.querySelectorAll('.tournament-unsubscribe-button[data-tournament-id]').forEach(button => {
+        button.addEventListener('click', () => {
+            if (!window.UserAuth || !window.UserAuth.unsubscribeFromTournament) {
+                alert('Accesso utenti non disponibile. Riprova tra poco.');
+                return;
+            }
+            const torneoId = button.getAttribute('data-tournament-id');
+            button.disabled = true;
+            button.textContent = 'Disiscrizione...';
+            window.UserAuth.unsubscribeFromTournament(torneoId)
+                .then(() => {
+                    loadUpcomingTournaments();
+                })
+                .catch(error => {
+                    button.disabled = false;
+                    button.textContent = 'Disiscriviti';
+                    alert(error.message || 'Errore durante la disiscrizione.');
+                });
+        });
+    });
+}
+
+async function loadCups() {
+    if (!database) return {};
+    const snapshot = await database.ref('cups').once('value');
+    return snapshot.val() || {};
+}
+
+async function loadSignupsForTournaments(tournamentIds) {
+    if (!database || tournamentIds.length === 0) return {};
+    const snapshots = await Promise.all(
+        tournamentIds.map(id => database.ref(`iscrizioni/${id}`).once('value').then(snapshot => [id, snapshot.val() || {}]))
+    );
+    return Object.fromEntries(snapshots);
+}
+
+// Carica tornei imminenti da Firebase
 function loadUpcomingTournaments() {
     const container = document.getElementById('nextTournaments');
     if (!container) return;
 
-    // Mostra un indicatore di caricamento
     container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Caricamento tornei in corso...</div>';
 
-    // Controlla se Firebase è disponibile
     if (!database) {
         console.error("Database Firebase non disponibile");
         renderTournamentEmpty(container, 'Calendario in aggiornamento');
         return;
     }
 
-    // Se Firebase è disponibile, carica i dati
-    database.ref('eventi').once('value')
-        .then(snapshot => {
-            const eventi = snapshot.val() || {};
-            const eventiArray = Object.entries(eventi);
+    database.ref('tornei').once('value')
+        .then(async snapshot => {
+            const tornei = snapshot.val() || {};
+            const torneiFuturi = Object.entries(tornei)
+                .filter(([_, torneo]) => isUpcomingTournament(torneo))
+                .sort((a, b) => parseTournamentDate(a[1]) - parseTournamentDate(b[1]));
 
-            // Se non ci sono eventi, mostra un messaggio
-            if (eventiArray.length === 0) {
-                renderTournamentEmpty(container);
-                return;
-            }
-
-            // Filtra solo gli eventi futuri
-            const oggi = new Date();
-            oggi.setHours(0, 0, 0, 0); // Reset dell'ora per confrontare solo le date
-
-            const eventiFuturi = eventiArray
-                .filter(([_, evento]) => {
-                    if (!evento.data) return false;
-
-                    try {
-                        const dataEvento = new Date(evento.data);
-                        return dataEvento >= oggi;
-                    } catch (e) {
-                        console.error("Errore nel parsing della data:", e);
-                        return false;
-                    }
-                })
-                .sort((a, b) => new Date(a[1].data) - new Date(b[1].data)); // Ordina per data
-
-            // Se non ci sono eventi futuri, mostra un messaggio
-            if (eventiFuturi.length === 0) {
+            if (torneiFuturi.length === 0) {
                 renderTournamentEmpty(container, 'Nessun torneo futuro programmato');
                 return;
             }
 
-            // Crea le card per ogni evento futuro
-            container.innerHTML = '';
-            eventiFuturi.slice(0, 3).forEach(([eventoId, evento]) => {
-                const dataEvento = new Date(evento.data);
-                const formattedData = dataEvento.toLocaleDateString('it-IT', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
+            const currentUser = window.UserAuth ? window.UserAuth.currentUser() : null;
+            const visibleTournamentIds = torneiFuturi.slice(0, 3).map(([id]) => id);
+            const [signupMap, cups] = await Promise.all([
+                loadSignupsForTournaments(visibleTournamentIds),
+                loadCups()
+            ]);
 
-                // Crea una card per ogni evento
+            container.innerHTML = '';
+            torneiFuturi.slice(0, 3).forEach(([torneoId, torneo]) => {
+                const iscrizioni = signupMap[torneoId] || {};
                 const tournamentCard = document.createElement('div');
                 tournamentCard.className = 'tournament-card';
                 tournamentCard.innerHTML = `
+                    ${tournamentImage(torneo)}
                     <div class="tournament-date">
-                        <i class="far fa-calendar"></i> ${formattedData}
+                        <i class="far fa-calendar"></i> ${html(formatTournamentDate(torneo))}
                     </div>
-                    <h4 class="tournament-title">${html(evento.nome || 'Evento Battlegrounds League')}</h4>
-                    <div class="tournament-location">
-                        <i class="fas fa-map-marker-alt"></i> ${html(evento.luogo || 'Luogo da definire')}
-                    </div>
+                    <h4 class="tournament-title">${html(torneo.nome || 'Torneo Battlegrounds League')}</h4>
+                    ${torneo.luogo ? `<div class="tournament-location"><i class="fas fa-map-marker-alt"></i> ${html(torneo.luogo)}</div>` : ''}
                     <div class="tournament-details">
-                        <p><strong>Formato:</strong> ${html(evento.formato || 'Swiss + Top 8')}</p>
-                        <p><strong>Iscrizione:</strong> ${html(evento.quota || '€15')}</p>
-                        <p><strong>Premi:</strong> ${html(evento.premi || 'Carte promo esclusive, tappetini di gioco ufficiali')}</p>
+                        <p><strong>Formato:</strong> ${html(torneo.tipo || torneo.formato || 'Battlegrounds')}</p>
+                        ${cupInfo(torneo, cups)}
+                        <p><strong>Iscrizione:</strong> ${torneo.iscrizioneAperta === false ? 'Chiusa' : 'Aperta'}</p>
+                        ${torneo.linkChallonge ? `<p><strong>Bracket:</strong> <a href="${window.safeURL ? window.safeURL(torneo.linkChallonge) : html(torneo.linkChallonge)}" target="_blank" rel="noopener noreferrer">Challonge</a></p>` : ''}
                     </div>
+                    ${renderSignupList(torneo, iscrizioni)}
                     <div class="tournament-action">
-                        <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
+                        ${registrationButton(torneoId, torneo, currentUser, iscrizioni)}
                     </div>
                 `;
 
                 container.appendChild(tournamentCard);
             });
+            wireTournamentButtons();
         })
         .catch(error => {
-            console.error("Errore nel caricamento degli eventi:", error);
+            console.error("Errore nel caricamento dei tornei:", error);
             renderTournamentEmpty(container, 'Calendario non disponibile');
         });
 }
 
-// Inizializza la pagina quando il DOM è caricato
+function init() {
+    if (window.UserAuth && typeof auth !== 'undefined' && auth) {
+        auth.onAuthStateChanged(() => loadUpcomingTournaments());
+        window.UserAuth.renderAuthStatus('userAuthStatus');
+        return;
+    }
+    loadUpcomingTournaments();
+}
+
 document.addEventListener('DOMContentLoaded', init);

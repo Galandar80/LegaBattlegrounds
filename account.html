@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Area utente Battlegrounds League">
+    <title>Area Utente - Battlegrounds League</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+</head>
+
+<body class="page-account">
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo-container">
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
+                    <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
+                    <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
+                    <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
+                    <li class="nav-item"><a href="account.html" class="nav-link active" aria-current="page"><i class="fas fa-user"></i> Area Utente</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" class="container account-main">
+        <section class="section-container account-panel fade-in">
+            <h1 id="accountTitle" class="section-title"><i class="fas fa-user-circle"></i> Accedi</h1>
+            <form id="accountForm" class="account-form">
+                <input type="hidden" id="accountMode" value="login">
+                <div id="profileFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="firstName">Nome</label>
+                        <input type="text" id="firstName" autocomplete="given-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Cognome</label>
+                        <input type="text" id="lastName" autocomplete="family-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="nickname">Nickname</label>
+                        <input type="text" id="nickname" autocomplete="nickname">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="accountEmail">Email</label>
+                    <input type="email" id="accountEmail" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="accountPassword">Password</label>
+                    <input type="password" id="accountPassword" autocomplete="current-password" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Accedi</button>
+                <button type="button" class="btn btn-secondary" id="googleLoginButton">
+                    <i class="fab fa-google"></i> Continua con Google
+                </button>
+                <button type="button" class="btn btn-secondary" id="toggleAccountMode">Non hai un account? Registrati</button>
+                <div id="accountMessage" class="auth-message" aria-live="polite"></div>
+            </form>
+
+            <section id="profileEditor" class="profile-editor" style="display: none;">
+                <h2 class="section-title"><i class="fas fa-id-card"></i> I tuoi dati</h2>
+                <form id="profileForm" class="account-form">
+                    <div class="form-group">
+                        <label for="profileFirstName">Nome</label>
+                        <input type="text" id="profileFirstName" autocomplete="given-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileLastName">Cognome</label>
+                        <input type="text" id="profileLastName" autocomplete="family-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileNickname">Nickname</label>
+                        <input type="text" id="profileNickname" autocomplete="nickname" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salva dati</button>
+                    <button type="button" class="btn btn-secondary" id="accountLogoutButton">Esci</button>
+                    <div id="profileMessage" class="auth-message" aria-live="polite"></div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="include-footer"></div>
+    </footer>
+
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/user-auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => window.UserAuth.setupAccountPage());
+    </script>
+    <script src="assets/js/visual-fx.js"></script>
+</body>
+
+</html>

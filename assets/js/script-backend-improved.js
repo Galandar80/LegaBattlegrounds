@@ -2,6 +2,12 @@
 
 // Funzioni per la gestione avanzata dei tornei e dei giocatori
 let chartInstances = {}; // Per tenere traccia dei grafici creati
+const backendHtml = value => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 // Funzione per generare grafici di analisi per un torneo specifico
 function generaGraficiTorneo(torneoId) {
@@ -565,6 +571,9 @@ function salvaImpostazioniTorneo() {
     const tipo = document.getElementById('editTipoTorneo').value.trim();
     const data = document.getElementById('editDataTorneo').value;
     const linkChallonge = document.getElementById('editLinkChallonge').value.trim();
+    const immagine = document.getElementById('editImmagineTorneo').value.trim();
+    const cupId = document.getElementById('editTorneoCoppa').value;
+    const iscrizioneAperta = document.getElementById('editIscrizioneTorneo').value === 'true';
     
     if (!nome) {
         showAlert('Il nome del torneo non può essere vuoto!', 'error');
@@ -573,7 +582,10 @@ function salvaImpostazioniTorneo() {
     
     // Prepara i dati da aggiornare
     const updates = {
-        nome: nome
+        nome: nome,
+        cupId: cupId || null,
+        iscrizioneAperta: iscrizioneAperta,
+        immagine: immagine || null
     };
     
     // Aggiungi campo tipo se presente
@@ -605,6 +617,9 @@ function salvaImpostazioniTorneo() {
                 if (tipo) torneiData[torneoSelezionatoId].tipo = tipo;
                 if (data) torneiData[torneoSelezionatoId].dataInizio = data;
                 if (linkChallonge) torneiData[torneoSelezionatoId].linkChallonge = linkChallonge;
+                torneiData[torneoSelezionatoId].immagine = immagine || null;
+                torneiData[torneoSelezionatoId].cupId = cupId || null;
+                torneiData[torneoSelezionatoId].iscrizioneAperta = iscrizioneAperta;
             }
         })
         .catch(error => {
@@ -668,6 +683,101 @@ function eliminaTorneo(torneoId) {
         .catch(error => {
             console.error("Errore nell'eliminazione del torneo:", error);
             showAlert(`Errore nell'eliminazione: ${error.message}`, 'error');
+        });
+}
+
+function caricaIscrizioniTorneo(torneoId) {
+    const container = document.getElementById('iscrizioniGrid');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento iscrizioni...</div>';
+
+    database.ref(`iscrizioni/${torneoId}`).once('value')
+        .then(snapshot => {
+            const iscrizioni = snapshot.val() || {};
+            const iscrizioniArray = Object.entries(iscrizioni)
+                .sort((a, b) => new Date(a[1].createdAt || 0) - new Date(b[1].createdAt || 0));
+
+            container.innerHTML = '';
+
+            if (iscrizioniArray.length === 0) {
+                container.innerHTML = '<div class="no-data">Nessuna iscrizione registrata per questo torneo</div>';
+                return;
+            }
+
+            iscrizioniArray.forEach(([uid, iscrizione]) => {
+                const card = document.createElement('div');
+                card.className = 'giocatore-card';
+                const safeName = backendHtml(iscrizione.nickname || iscrizione.displayName || iscrizione.email || 'Utente registrato');
+                const safeStatus = backendHtml(iscrizione.status || 'confirmed');
+                card.innerHTML = `
+                    <div class="giocatore-nome">${safeName}</div>
+                    <div class="giocatore-stats">
+                        <div class="giocatore-stat">
+                            <div class="giocatore-stat-value">${safeStatus}</div>
+                            <div class="giocatore-stat-label">Stato</div>
+                        </div>
+                        <div class="giocatore-stat">
+                            <div class="giocatore-stat-value">${iscrizione.createdAt ? new Date(iscrizione.createdAt).toLocaleDateString() : '-'}</div>
+                            <div class="giocatore-stat-label">Data</div>
+                        </div>
+                    </div>
+                    <div class="flex-group" style="margin-top: 10px;">
+                        <button onclick="importaIscrittoComeGiocatore('${torneoId}', '${uid}')" class="small-button"><i class="fas fa-user-plus"></i> Importa</button>
+                        <button onclick="rimuoviIscrizione('${torneoId}', '${uid}')" class="small-button" style="background: #dc3545"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        })
+        .catch(error => {
+            console.error("Errore nel caricamento delle iscrizioni:", error);
+            container.innerHTML = `<div class="error">Errore nel caricamento iscrizioni: ${error.message}</div>`;
+        });
+}
+
+function importaIscrittoComeGiocatore(torneoId, uid) {
+    database.ref(`iscrizioni/${torneoId}/${uid}`).once('value')
+        .then(snapshot => {
+            const iscrizione = snapshot.val();
+            if (!iscrizione) {
+                showAlert('Iscrizione non trovata', 'error');
+                return null;
+            }
+
+            const nuovoGiocatore = {
+                nome: iscrizione.nickname || iscrizione.displayName || iscrizione.email || 'Giocatore',
+                punti: 0,
+                posizione: 0,
+                qualificato: false,
+                userId: uid
+            };
+
+            return database.ref(`tornei/${torneoId}/giocatori`).push(nuovoGiocatore)
+                .then(() => database.ref(`iscrizioni/${torneoId}/${uid}/status`).set('imported'));
+        })
+        .then(() => {
+            showAlert('Iscritto importato tra i giocatori');
+            caricaGiocatoriTorneo(torneoId);
+            caricaIscrizioniTorneo(torneoId);
+        })
+        .catch(error => {
+            console.error("Errore nell importazione dell iscritto:", error);
+            showAlert(`Errore importazione: ${error.message}`, 'error');
+        });
+}
+
+function rimuoviIscrizione(torneoId, uid) {
+    if (!confirm('Rimuovere questa iscrizione?')) return;
+
+    database.ref(`iscrizioni/${torneoId}/${uid}`).remove()
+        .then(() => {
+            showAlert('Iscrizione rimossa');
+            caricaIscrizioniTorneo(torneoId);
+        })
+        .catch(error => {
+            console.error("Errore nella rimozione dell iscrizione:", error);
+            showAlert(`Errore rimozione: ${error.message}`, 'error');
         });
 }
 

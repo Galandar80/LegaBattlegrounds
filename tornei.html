@@ -20,6 +20,7 @@
     <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
@@ -40,6 +41,7 @@
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
                     <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
+                    <li class="nav-item"><a href="account.html" class="nav-link"><i class="fas fa-user"></i> Area Utente</a></li>
                     <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
@@ -76,7 +78,10 @@
 
             <!-- Prossimi Tornei -->
             <div class="upcoming-tournaments">
-                <h3><i class="fas fa-calendar-alt"></i> Prossimi Tornei</h3>
+                <div class="tournaments-heading-row">
+                    <h3><i class="fas fa-calendar-alt"></i> Prossimi Tornei</h3>
+                    <div id="userAuthStatus" class="user-auth-status"></div>
+                </div>
                 <div id="nextTournaments" class="upcoming-tournaments-grid">
                     <div class="premium-empty" style="grid-column: 1/-1;">
                         <i class="fas fa-scroll"></i>
@@ -85,36 +90,6 @@
                         <a href="contatti.html" class="btn btn-primary">Richiedi informazioni</a>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Tornei Passati con Challonge Embedding -->
-        <section class="section-container fade-in tornei-section">
-            <h2 class="section-title"><i class="fas fa-history"></i> Tornei Passati</h2>
-
-            <div class="tornei-grid">
-                <!-- Torneo 1: Marzo 2025 -->
-                <div class="torneo-embed">
-                    <h3>Torneo Mensile - Marzo 2025</h3>
-                    <div class="challonge-container">
-                        <iframe src="https://challonge.com/it/u3goks3t/module?show_standings=1" width="100%"
-                            height="650" frameborder="0" scrolling="auto" allowtransparency="true"></iframe>
-                    </div>
-                </div>
-
-                <!-- Torneo 2: Aprile 2025 -->
-                <div class="torneo-embed">
-                    <h3>Torneo Mensile - Aprile 2025</h3>
-                    <div class="challonge-container">
-                        <iframe src="https://challonge.com/it/x0d9zw3/module?show_standings=1" width="100%" height="650"
-                            frameborder="0" scrolling="auto" allowtransparency="true"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tournament-note">
-                <p><i class="fas fa-info-circle"></i> <strong>Nota:</strong> Per la partecipazione ai prossimi tornei,
-                    contatta gli organizzatori tramite la nostra pagina dei contatti o sui nostri canali social.</p>
             </div>
         </section>
 
@@ -181,6 +156,7 @@
 
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/user-auth.js"></script>
     <script src="assets/js/tornei.js"></script>
     <script src="assets/js/visual-fx.js"></script>
 </body>

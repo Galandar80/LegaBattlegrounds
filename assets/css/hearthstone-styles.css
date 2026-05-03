@@ -5361,3 +5361,120 @@ body::after {
     grid-template-columns: 1fr;
   }
 }
+
+.tournaments-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.tournaments-heading-row h3 {
+    margin-bottom: 0;
+}
+
+.user-auth-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.user-auth-name {
+    color: var(--hs-gold);
+    font-weight: 700;
+}
+
+.tournament-signup-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.home-next-tournament {
+    margin: 4rem auto;
+}
+
+.home-next-tournament-card {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.account-main {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.account-panel {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.account-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.auth-message {
+    min-height: 1.5rem;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.auth-message.error {
+    color: #ffb4a8;
+}
+
+.cup-rankings-section {
+    margin-top: 2rem;
+}
+
+.cup-rankings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.cup-ranking-card {
+    margin: 0;
+}
+
+.tournament-card-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 228, 120, 0.25);
+}
+
+.tournament-signups {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255, 228, 120, 0.18);
+}
+
+.tournament-signups strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--hs-gold);
+}
+
+.tournament-signups ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.tournament-signups li,
+.tournament-signups-empty {
+    padding: 0.35rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(10, 4, 22, 0.42);
+    border: 1px solid rgba(255, 228, 120, 0.14);
+    font-size: 0.92rem;
+}
