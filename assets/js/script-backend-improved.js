@@ -1205,91 +1205,24 @@ if (document.readyState === 'loading') {
 
 // Funzioni per le Coppe
 function caricaCoppe() {
-    const container = document.getElementById('coppeList');
-    const selectTorneo = document.getElementById('nuovoTorneoCoppa');
-    const selectEdit = document.getElementById('editTorneoCoppa');
-
-    if (!container && !selectTorneo && !selectEdit) return;
-
-    if (container) {
-        container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento coppe...</div>';
+    if (window.AdminCupsManager) {
+        return window.AdminCupsManager.load();
     }
-
-    const cupsRef = database.ref('cups');
-    cupsRef.off('value');
-    cupsRef.on('value', (snapshot) => {
-        const coppe = snapshot.val() || {};
-        const sortedCoppe = Object.entries(coppe)
-            .sort((a, b) => (a[1].name || a[1].nome || '').localeCompare(b[1].name || b[1].nome || '', 'it'));
-        
-        if (container) {
-            container.innerHTML = '';
-        }
-        
-        // Svuota select
-        if (selectTorneo) selectTorneo.innerHTML = '<option value="">Nessuna Coppa</option>';
-        if (selectEdit) selectEdit.innerHTML = '<option value="">Nessuna Coppa</option>';
-
-        if (sortedCoppe.length === 0 && container) {
-            container.innerHTML = '<div class="no-data">Nessuna coppa creata</div>';
-        }
-
-        sortedCoppe.forEach(([id, coppa]) => {
-            const cupName = coppa.name || coppa.nome || 'Coppa senza nome';
-
-            // Aggiungi alla lista
-            if (container) {
-                const item = document.createElement('div');
-                item.className = 'event-card';
-                item.style.marginBottom = '10px';
-                const info = document.createElement('div');
-                info.className = 'event-info';
-                const name = document.createElement('strong');
-                name.textContent = cupName;
-                info.appendChild(name);
-
-                const actions = document.createElement('div');
-                actions.className = 'event-actions';
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'small-button';
-                deleteButton.style.background = '#dc3545';
-                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.addEventListener('click', () => eliminaCoppa(id));
-                actions.appendChild(deleteButton);
-
-                item.appendChild(info);
-                item.appendChild(actions);
-                container.appendChild(item);
-            }
-
-            // Aggiungi alle select
-            const opt = `<option value="${id}">${cupName}</option>`;
-            if (selectTorneo) selectTorneo.innerHTML += opt;
-            if (selectEdit) selectEdit.innerHTML += opt;
-        });
-    }, (error) => {
-        console.error("Errore nel caricamento delle coppe:", error);
-        if (container) {
-            container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${error.message}</div>`;
-        }
-    });
+    return Promise.resolve({});
 }
 
 function creaCoppa() {
-    const nome = document.getElementById('nuovaCoppaNome').value.trim();
-    if (!nome) return showAlert('Inserisci un nome per la coppa', 'error');
-    
-    database.ref('cups').push({ name: nome, creatoIl: new Date().toISOString() })
-        .then(() => {
-            showAlert('Coppa creata!');
-            document.getElementById('nuovaCoppaNome').value = '';
-        });
+    if (window.AdminCupsManager) {
+        return window.AdminCupsManager.create();
+    }
+    return Promise.resolve();
 }
 
 function eliminaCoppa(id) {
-    if (confirm('Eliminare questa coppa? I tornei associati non verranno eliminati ma non saranno più collegati.')) {
-        database.ref(`cups/${id}`).remove();
+    if (window.AdminCupsManager) {
+        return window.AdminCupsManager.delete(id);
     }
+    return Promise.resolve();
 }
 
 // Funzioni per HOF

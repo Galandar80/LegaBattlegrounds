@@ -30,6 +30,19 @@
         button { background: var(--hs-gold); color: #000; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         button:hover { filter: brightness(1.1); }
         .event-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(243, 206, 52, 0.2); padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-cups-toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) auto auto; gap: 10px; align-items: center; }
+        .admin-cups-summary { margin: 16px 0 10px; color: #d8c8ef; font-weight: 700; }
+        .admin-cups-list { display: grid; gap: 10px; min-height: 80px; }
+        .admin-cups-state,
+        .admin-cup-row { border: 1px solid rgba(243, 206, 52, 0.35); border-radius: 6px; background: rgba(0, 0, 0, 0.24); color: #fff; padding: 14px; }
+        .admin-cup-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+        .admin-cup-title { font-weight: 800; overflow-wrap: anywhere; }
+        .admin-cup-meta { color: #d8c8ef; font-size: 0.9rem; margin-top: 4px; }
+        .admin-cup-delete { background: #dc3545; color: #fff; width: 42px; min-width: 42px; padding: 10px 0; }
+        @media (max-width: 760px) {
+            .admin-cups-toolbar { grid-template-columns: 1fr; }
+            .admin-cups-toolbar button { width: 100%; }
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
@@ -259,13 +272,16 @@
             <!-- Sezione gestione coppe -->
             <div class="section" id="sezioneCoppe" style="display: none;">
                 <h2><i class="fas fa-trophy"></i> Gestione Coppe</h2>
-                <div class="flex-group">
-                    <input type="text" id="nuovaCoppaNome" placeholder="Nome della Coppa (es. Coppa Murloc)" style="flex-grow: 1">
-                    <button id="btnCreaCoppa"><i class="fas fa-plus"></i> Crea Coppa</button>
-                    <button id="btnAggiornaCoppe" class="secondary"><i class="fas fa-sync-alt"></i> Aggiorna lista</button>
+                <div class="admin-cups-toolbar">
+                    <input type="text" id="nuovaCoppaNome" placeholder="Nome della Coppa (es. Coppa Murloc)"
+                        autocomplete="off">
+                    <button id="btnCreaCoppa" type="button"><i class="fas fa-plus"></i> Crea Coppa</button>
+                    <button id="btnAggiornaCoppe" type="button" class="secondary"><i class="fas fa-sync-alt"></i>
+                        Aggiorna lista</button>
                 </div>
-                <div id="coppeList" class="admin-cups-list" style="margin-top: 20px; min-height: 80px;">
-                    <div class="loading"><i class="fas fa-spinner"></i> Caricamento coppe...</div>
+                <div class="admin-cups-summary" id="coppeSummary">Coppe caricate: 0</div>
+                <div id="coppeList" class="admin-cups-list">
+                    <div class="admin-cups-state"><i class="fas fa-spinner"></i> Caricamento coppe...</div>
                 </div>
             </div>
 
@@ -382,8 +398,6 @@
         let torneoSelezionatoId = null;
         let paginaCorrente = 1;
         const torneiPerPagina = 6;
-        const cupsRestUrl = 'https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app/cups.json';
-
         // Funzione per mostrare alert
         function showAlert(message, type = 'success') {
             const alertDiv = document.createElement('div');
@@ -391,93 +405,6 @@
             alertDiv.textContent = message;
             document.body.prepend(alertDiv);
             setTimeout(() => alertDiv.remove(), 3000);
-        }
-
-        function renderCoppeInline(coppe) {
-            const container = document.getElementById('coppeList');
-            const selectTorneo = document.getElementById('nuovoTorneoCoppa');
-            const selectEdit = document.getElementById('editTorneoCoppa');
-            if (!container) return;
-
-            container.innerHTML = '';
-            if (selectTorneo) selectTorneo.innerHTML = '<option value="">Nessuna Coppa</option>';
-            if (selectEdit) selectEdit.innerHTML = '<option value="">Nessuna Coppa</option>';
-
-            const entries = Object.entries(coppe || {})
-                .sort((a, b) => (a[1].name || a[1].nome || '').localeCompare(b[1].name || b[1].nome || '', 'it'));
-
-            if (entries.length === 0) {
-                container.innerHTML = '<div class="no-data">Nessuna coppa creata</div>';
-                return;
-            }
-
-            entries.forEach(([id, coppa]) => {
-                const cupName = coppa.name || coppa.nome || 'Coppa senza nome';
-                const item = document.createElement('div');
-                item.className = 'event-card';
-                item.style.marginBottom = '10px';
-
-                const info = document.createElement('div');
-                info.className = 'event-info';
-                const name = document.createElement('strong');
-                name.textContent = cupName;
-                info.appendChild(name);
-
-                const actions = document.createElement('div');
-                actions.className = 'event-actions';
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'small-button';
-                deleteButton.style.background = '#dc3545';
-                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.addEventListener('click', function () {
-                    if (!confirm('Eliminare questa coppa? I tornei associati non verranno eliminati ma non saranno più collegati.')) return;
-                    database.ref(`cups/${id}`).remove()
-                        .then(() => {
-                            showAlert('Coppa eliminata');
-                            caricaCoppeInline();
-                        })
-                        .catch(error => showAlert(`Errore eliminazione coppa: ${error.message}`, 'error'));
-                });
-                actions.appendChild(deleteButton);
-
-                item.appendChild(info);
-                item.appendChild(actions);
-                container.appendChild(item);
-
-                const opt = `<option value="${id}">${cupName}</option>`;
-                if (selectTorneo) selectTorneo.innerHTML += opt;
-                if (selectEdit) selectEdit.innerHTML += opt;
-            });
-        }
-
-        function caricaCoppeInline() {
-            const container = document.getElementById('coppeList');
-            if (container) {
-                container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento coppe...</div>';
-            }
-
-            fetch(`${cupsRestUrl}?t=${Date.now()}`, { cache: 'no-store' })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Firebase REST ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(coppe => renderCoppeInline(coppe || {}))
-                .catch(error => {
-                    console.warn('Lettura REST coppe non riuscita, provo Firebase SDK:', error);
-                    if (!database) {
-                        if (container) container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${error.message}</div>`;
-                        return;
-                    }
-
-                    database.ref('cups').once('value')
-                        .then(snapshot => renderCoppeInline(snapshot.val() || {}))
-                        .catch(firebaseError => {
-                            console.error('Errore nel caricamento delle coppe:', firebaseError);
-                            if (container) container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${firebaseError.message}</div>`;
-                        });
-                });
         }
 
         // Carica il tema salvato
@@ -584,23 +511,10 @@
 
             document.getElementById('menuCoppe').addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById('sezioneTornei').style.display = 'none';
-                document.getElementById('sezioneStatistiche').style.display = 'none';
-                document.getElementById('gestioneTorneo').style.display = 'none';
-                document.getElementById('sezioneEventi').style.display = 'none';
-                document.getElementById('sezioneCoppe').style.display = 'block';
-                document.getElementById('sezioneHOF').style.display = 'none';
-
-                caricaCoppeInline();
+                if (window.AdminCupsManager) {
+                    window.AdminCupsManager.open();
+                }
             });
-
-            document.getElementById('btnAggiornaCoppe').addEventListener('click', function () {
-                caricaCoppeInline();
-            });
-
-            caricaCoppeInline();
 
             // Event listeners per filtri
             document.getElementById('cercaTorneo').addEventListener('input', function () {
@@ -1069,8 +983,8 @@
     </script>
 
     <!-- Script per funzionalità avanzate -->
-    <script src="assets/js/script-backend-improved.js?v=20260504-coppe-manager"></script>
-    <script src="assets/js/admin-cups.js?v=20260504-timeout-xhr"></script>
+    <script src="assets/js/script-backend-improved.js?v=20260504-coppe-rebuild"></script>
+    <script src="assets/js/admin-cups.js?v=20260504-rebuild"></script>
 </body>
 
 </html>

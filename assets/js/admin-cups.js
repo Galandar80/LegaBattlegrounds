@@ -1,266 +1,263 @@
 (function () {
     "use strict";
 
-    const CUPS_REST_URL = "https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app/cups.json";
-    const LOAD_TIMEOUT_MS = 7000;
+    const REST_URL = "https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app/cups.json";
+    const NONE_OPTION = '<option value="">Nessuna Coppa</option>';
+    const state = {
+        cups: {},
+        loading: false
+    };
 
-    function db() {
-        return typeof database !== "undefined" && database ? database : null;
-    }
-
-    function el(id) {
+    function byId(id) {
         return document.getElementById(id);
     }
 
-    function setStatus(message, className) {
-        const container = el("coppeList");
-        if (!container) return;
-        container.innerHTML = "";
-        const state = document.createElement("div");
-        state.className = className || "info";
-        state.style.padding = "14px";
-        state.style.border = "1px solid rgba(243, 206, 52, 0.35)";
-        state.style.borderRadius = "6px";
-        state.style.background = "rgba(0, 0, 0, 0.22)";
-        state.style.color = "#fff";
-        state.innerHTML = message;
-        container.appendChild(state);
+    function cupsRef() {
+        if (typeof database === "undefined" || !database) return null;
+        return database.ref("cups");
     }
 
-    function render(coppe) {
-        const container = el("coppeList");
-        const selectTorneo = el("nuovoTorneoCoppa");
-        const selectEdit = el("editTorneoCoppa");
-        if (!container) return;
+    function cupName(cup) {
+        return (cup && (cup.name || cup.nome)) || "Coppa senza nome";
+    }
 
-        container.innerHTML = "";
-        if (selectTorneo) selectTorneo.innerHTML = '<option value="">Nessuna Coppa</option>';
-        if (selectEdit) selectEdit.innerHTML = '<option value="">Nessuna Coppa</option>';
+    function sortedEntries(cups) {
+        return Object.entries(cups || {})
+            .sort((a, b) => cupName(a[1]).localeCompare(cupName(b[1]), "it"));
+    }
 
-        const entries = Object.entries(coppe || {})
-            .sort((a, b) => (a[1].name || a[1].nome || "").localeCompare(b[1].name || b[1].nome || "", "it"));
+    function setSummary(count) {
+        const summary = byId("coppeSummary");
+        if (summary) summary.textContent = `Coppe caricate: ${count}`;
+    }
+
+    function status(message, type) {
+        const list = byId("coppeList");
+        if (!list) return;
+        list.innerHTML = "";
+        const box = document.createElement("div");
+        box.className = `admin-cups-state ${type || ""}`.trim();
+        box.innerHTML = message;
+        list.appendChild(box);
+    }
+
+    function syncCupSelects(entries) {
+        const options = entries
+            .map(([id, cup]) => `<option value="${id}">${escapeHtml(cupName(cup))}</option>`)
+            .join("");
+
+        ["nuovoTorneoCoppa", "editTorneoCoppa"].forEach(id => {
+            const select = byId(id);
+            if (select) select.innerHTML = NONE_OPTION + options;
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function render(cups) {
+        state.cups = cups || {};
+        const list = byId("coppeList");
+        if (!list) return;
+
+        const entries = sortedEntries(state.cups);
+        syncCupSelects(entries);
+        setSummary(entries.length);
+        list.innerHTML = "";
 
         if (entries.length === 0) {
-            setStatus("Nessuna coppa creata", "no-data");
+            status("Nessuna coppa creata", "empty");
             return;
         }
 
-        entries.forEach(([id, coppa]) => {
-            const cupName = coppa.name || coppa.nome || "Coppa senza nome";
+        entries.forEach(([id, cup]) => {
+            const row = document.createElement("div");
+            row.className = "admin-cup-row";
+            row.dataset.cupId = id;
 
-            const item = document.createElement("div");
-            item.className = "event-card admin-cup-card";
-            item.style.marginBottom = "10px";
-            item.style.display = "flex";
-            item.style.justifyContent = "space-between";
-            item.style.alignItems = "center";
-            item.style.padding = "14px";
-            item.style.border = "1px solid rgba(243, 206, 52, 0.35)";
-            item.style.borderRadius = "6px";
-            item.style.background = "rgba(0, 0, 0, 0.26)";
-            item.style.color = "#fff";
+            const info = document.createElement("div");
+            const title = document.createElement("div");
+            title.className = "admin-cup-title";
+            title.textContent = cupName(cup);
+            info.appendChild(title);
 
-            const name = document.createElement("strong");
-            name.textContent = cupName;
-            item.appendChild(name);
+            if (cup && cup.creatoIl) {
+                const meta = document.createElement("div");
+                meta.className = "admin-cup-meta";
+                meta.textContent = `Creata il ${formatDate(cup.creatoIl)}`;
+                info.appendChild(meta);
+            }
 
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "small-button";
-            button.style.background = "#dc3545";
-            button.style.color = "#fff";
-            button.innerHTML = '<i class="fas fa-trash"></i>';
-            button.title = "Elimina coppa";
-            button.addEventListener("click", event => {
-                event.preventDefault();
-                event.stopPropagation();
-                removeCup(id);
-            });
-            item.appendChild(button);
-            container.appendChild(item);
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "admin-cup-delete";
+            remove.title = "Elimina coppa";
+            remove.setAttribute("aria-label", `Elimina ${cupName(cup)}`);
+            remove.innerHTML = '<i class="fas fa-trash"></i>';
+            remove.addEventListener("click", () => deleteCup(id));
 
-            const option = `<option value="${id}">${cupName}</option>`;
-            if (selectTorneo) selectTorneo.innerHTML += option;
-            if (selectEdit) selectEdit.innerHTML += option;
+            row.appendChild(info);
+            row.appendChild(remove);
+            list.appendChild(row);
         });
     }
 
-    function withTimeout(promise, message) {
-        return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => reject(new Error(message)), LOAD_TIMEOUT_MS);
-            promise
-                .then(value => {
-                    clearTimeout(timer);
-                    resolve(value);
-                })
-                .catch(error => {
-                    clearTimeout(timer);
-                    reject(error);
-                });
-        });
+    function formatDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleDateString("it-IT");
     }
 
-    function loadViaFetch() {
-        return withTimeout(
-            fetch(`${CUPS_REST_URL}?t=${Date.now()}`, { cache: "no-store" })
-                .then(response => {
-                    if (!response.ok) throw new Error(`Firebase REST ${response.status}`);
-                    return response.json();
-                }),
-            "Timeout REST coppe"
-        );
+    function loadFromFirebaseSdk() {
+        const ref = cupsRef();
+        if (!ref) return Promise.reject(new Error("Database Firebase non disponibile"));
+        return ref.once("value").then(snapshot => snapshot.val() || {});
     }
 
-    function loadViaXhr() {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", `${CUPS_REST_URL}?t=${Date.now()}`, true);
-            xhr.timeout = LOAD_TIMEOUT_MS;
-            xhr.onload = () => {
-                if (xhr.status < 200 || xhr.status >= 300) {
-                    reject(new Error(`Firebase XHR ${xhr.status}`));
-                    return;
-                }
-                try {
-                    resolve(JSON.parse(xhr.responseText || "{}"));
-                } catch (error) {
-                    reject(error);
-                }
-            };
-            xhr.onerror = () => reject(new Error("Errore rete XHR coppe"));
-            xhr.ontimeout = () => reject(new Error("Timeout XHR coppe"));
-            xhr.send();
-        });
-    }
-
-    function loadViaSdk() {
-        const databaseRef = db();
-        if (!databaseRef) return Promise.reject(new Error("Database Firebase non disponibile"));
-        return withTimeout(
-            databaseRef.ref("cups").once("value").then(snapshot => snapshot.val() || {}),
-            "Timeout Firebase SDK coppe"
-        );
-    }
-
-    function loadCups() {
-        setStatus('<i class="fas fa-spinner"></i> Caricamento coppe...', "loading");
-
-        return loadViaFetch()
-            .then(data => {
-                render(data || {});
-                return data || {};
+    function loadFromRest() {
+        return fetch(`${REST_URL}?t=${Date.now()}`, { cache: "no-store" })
+            .then(response => {
+                if (!response.ok) throw new Error(`Firebase REST ${response.status}`);
+                return response.json();
             })
-            .catch(fetchError => {
-                console.warn("Lettura coppe via fetch non riuscita:", fetchError);
-                return loadViaXhr()
-                    .then(data => {
-                        render(data || {});
-                        return data || {};
-                    });
-            })
-            .catch(xhrError => {
-                console.warn("Lettura coppe via XHR non riuscita:", xhrError);
-                return loadViaSdk()
-                    .then(data => {
-                        render(data || {});
-                        return data || {};
-                    });
+            .then(data => data || {});
+    }
+
+    function load() {
+        if (state.loading) return Promise.resolve(state.cups);
+        state.loading = true;
+        status('<i class="fas fa-spinner"></i> Caricamento coppe...', "loading");
+
+        return loadFromFirebaseSdk()
+            .catch(() => loadFromRest())
+            .then(cups => {
+                render(cups);
+                return cups;
             })
             .catch(error => {
-                setStatus(`Errore nel caricamento delle coppe: ${error.message}`, "error");
+                setSummary(0);
+                syncCupSelects([]);
+                status(`Errore nel caricamento delle coppe: ${escapeHtml(error.message)}`, "error");
                 return {};
+            })
+            .finally(() => {
+                state.loading = false;
             });
-    }
-
-    function showCupsSection() {
-        document.querySelectorAll(".sidebar-menu a").forEach(link => link.classList.remove("active"));
-        const menu = el("menuCoppe");
-        if (menu) menu.classList.add("active");
-
-        ["sezioneTornei", "sezioneStatistiche", "gestioneTorneo", "sezioneEventi", "sezioneHOF"].forEach(id => {
-            const section = el(id);
-            if (section) section.style.display = "none";
-        });
-
-        const cups = el("sezioneCoppe");
-        if (cups) cups.style.display = "block";
-        loadCups();
     }
 
     function createCup() {
-        const input = el("nuovaCoppaNome");
+        const input = byId("nuovaCoppaNome");
         const name = input ? input.value.trim() : "";
-        const databaseRef = db();
+        const ref = cupsRef();
 
         if (!name) {
             if (typeof showAlert === "function") showAlert("Inserisci un nome per la coppa", "error");
-            return;
+            return Promise.resolve();
         }
-        if (!databaseRef) {
-            setStatus("Database Firebase non disponibile", "error");
-            return;
+        if (!ref) {
+            status("Database Firebase non disponibile", "error");
+            return Promise.resolve();
         }
 
-        databaseRef.ref("cups").push({ name, creatoIl: new Date().toISOString() })
+        return ref.push({ name, creatoIl: new Date().toISOString() })
             .then(() => {
                 if (input) input.value = "";
                 if (typeof showAlert === "function") showAlert("Coppa creata!");
-                return loadCups();
+                return load();
             })
-            .catch(error => setStatus(`Errore creazione coppa: ${error.message}`, "error"));
+            .catch(error => {
+                status(`Errore creazione coppa: ${escapeHtml(error.message)}`, "error");
+            });
     }
 
-    function removeCup(id) {
-        const databaseRef = db();
-        if (!databaseRef) {
-            setStatus("Database Firebase non disponibile", "error");
-            return;
+    function deleteCup(id) {
+        const ref = cupsRef();
+        if (!ref) {
+            status("Database Firebase non disponibile", "error");
+            return Promise.resolve();
         }
         if (!window.confirm("Eliminare questa coppa? I tornei associati non verranno eliminati ma non saranno più collegati.")) {
-            return;
+            return Promise.resolve();
         }
 
-        databaseRef.ref(`cups/${id}`).remove()
+        return ref.child(id).remove()
             .then(() => {
                 if (typeof showAlert === "function") showAlert("Coppa eliminata");
-                return loadCups();
+                return load();
             })
-            .catch(error => setStatus(`Errore eliminazione coppa: ${error.message}`, "error"));
+            .catch(error => {
+                status(`Errore eliminazione coppa: ${escapeHtml(error.message)}`, "error");
+            });
     }
 
-    function handleClick(event) {
-        const target = event.target.closest("#menuCoppe, #btnAggiornaCoppe, #btnCreaCoppa");
-        if (!target) return;
+    function open() {
+        document.querySelectorAll(".sidebar-menu a").forEach(link => link.classList.remove("active"));
+        const menu = byId("menuCoppe");
+        if (menu) menu.classList.add("active");
 
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
+        ["sezioneTornei", "sezioneStatistiche", "gestioneTorneo", "sezioneEventi", "sezioneHOF"].forEach(id => {
+            const section = byId(id);
+            if (section) section.style.display = "none";
+        });
 
-        if (target.id === "btnCreaCoppa") {
-            createCup();
-            return;
-        }
-        if (target.id === "menuCoppe") {
-            showCupsSection();
-            return;
-        }
-        loadCups();
+        const section = byId("sezioneCoppe");
+        if (section) section.style.display = "block";
+        return load();
     }
 
-    function install() {
-        document.addEventListener("click", handleClick, true);
-        loadCups();
+    function bind() {
+        const menu = byId("menuCoppe");
+        const refresh = byId("btnAggiornaCoppe");
+        const create = byId("btnCreaCoppa");
+        const input = byId("nuovaCoppaNome");
+
+        if (menu) {
+            menu.onclick = event => {
+                event.preventDefault();
+                open();
+            };
+        }
+        if (refresh) {
+            refresh.onclick = event => {
+                event.preventDefault();
+                load();
+            };
+        }
+        if (create) {
+            create.onclick = event => {
+                event.preventDefault();
+                createCup();
+            };
+        }
+        if (input) {
+            input.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    createCup();
+                }
+            });
+        }
+
+        load();
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", install);
+        document.addEventListener("DOMContentLoaded", bind);
     } else {
-        install();
+        bind();
     }
 
-    window.AdminCups = {
-        load: loadCups,
+    window.AdminCupsManager = {
+        open,
+        load,
         render,
-        show: showCupsSection
+        create: createCup,
+        delete: deleteCup
     };
 })();
