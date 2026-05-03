@@ -262,6 +262,7 @@
                 <div class="flex-group">
                     <input type="text" id="nuovaCoppaNome" placeholder="Nome della Coppa (es. Coppa Murloc)" style="flex-grow: 1">
                     <button id="btnCreaCoppa"><i class="fas fa-plus"></i> Crea Coppa</button>
+                    <button id="btnAggiornaCoppe" class="secondary"><i class="fas fa-sync-alt"></i> Aggiorna lista</button>
                 </div>
                 <div id="coppeList" style="margin-top: 20px;">
                     <!-- Lista coppe caricata via JS -->
@@ -381,6 +382,7 @@
         let torneoSelezionatoId = null;
         let paginaCorrente = 1;
         const torneiPerPagina = 6;
+        const cupsRestUrl = 'https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app/cups.json';
 
         // Funzione per mostrare alert
         function showAlert(message, type = 'success') {
@@ -454,16 +456,27 @@
                 container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento coppe...</div>';
             }
 
-            if (!database) {
-                if (container) container.innerHTML = '<div class="error">Database Firebase non disponibile</div>';
-                return;
-            }
-
-            database.ref('cups').once('value')
-                .then(snapshot => renderCoppeInline(snapshot.val() || {}))
+            fetch(`${cupsRestUrl}?t=${Date.now()}`, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Firebase REST ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(coppe => renderCoppeInline(coppe || {}))
                 .catch(error => {
-                    console.error('Errore nel caricamento delle coppe:', error);
-                    if (container) container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${error.message}</div>`;
+                    console.warn('Lettura REST coppe non riuscita, provo Firebase SDK:', error);
+                    if (!database) {
+                        if (container) container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${error.message}</div>`;
+                        return;
+                    }
+
+                    database.ref('cups').once('value')
+                        .then(snapshot => renderCoppeInline(snapshot.val() || {}))
+                        .catch(firebaseError => {
+                            console.error('Errore nel caricamento delle coppe:', firebaseError);
+                            if (container) container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${firebaseError.message}</div>`;
+                        });
                 });
         }
 
@@ -582,6 +595,12 @@
 
                 caricaCoppeInline();
             });
+
+            document.getElementById('btnAggiornaCoppe').addEventListener('click', function () {
+                caricaCoppeInline();
+            });
+
+            caricaCoppeInline();
 
             // Event listeners per filtri
             document.getElementById('cercaTorneo').addEventListener('input', function () {
@@ -1050,7 +1069,7 @@
     </script>
 
     <!-- Script per funzionalità avanzate -->
-    <script src="assets/js/script-backend-improved.js?v=20260504-coppe"></script>
+    <script src="assets/js/script-backend-improved.js?v=20260504-coppe-rest"></script>
 </body>
 
 </html>
