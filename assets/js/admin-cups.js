@@ -2,6 +2,7 @@
     "use strict";
 
     const CUPS_REST_URL = "https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app/cups.json";
+    const LOAD_TIMEOUT_MS = 7000;
 
     function db() {
         return typeof database !== "undefined" && database ? database : null;
@@ -84,34 +85,90 @@
         });
     }
 
+    function withTimeout(promise, message) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error(message)), LOAD_TIMEOUT_MS);
+            promise
+                .then(value => {
+                    clearTimeout(timer);
+                    resolve(value);
+                })
+                .catch(error => {
+                    clearTimeout(timer);
+                    reject(error);
+                });
+        });
+    }
+
+    function loadViaFetch() {
+        return withTimeout(
+            fetch(`${CUPS_REST_URL}?t=${Date.now()}`, { cache: "no-store" })
+                .then(response => {
+                    if (!response.ok) throw new Error(`Firebase REST ${response.status}`);
+                    return response.json();
+                }),
+            "Timeout REST coppe"
+        );
+    }
+
+    function loadViaXhr() {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", `${CUPS_REST_URL}?t=${Date.now()}`, true);
+            xhr.timeout = LOAD_TIMEOUT_MS;
+            xhr.onload = () => {
+                if (xhr.status < 200 || xhr.status >= 300) {
+                    reject(new Error(`Firebase XHR ${xhr.status}`));
+                    return;
+                }
+                try {
+                    resolve(JSON.parse(xhr.responseText || "{}"));
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            xhr.onerror = () => reject(new Error("Errore rete XHR coppe"));
+            xhr.ontimeout = () => reject(new Error("Timeout XHR coppe"));
+            xhr.send();
+        });
+    }
+
+    function loadViaSdk() {
+        const databaseRef = db();
+        if (!databaseRef) return Promise.reject(new Error("Database Firebase non disponibile"));
+        return withTimeout(
+            databaseRef.ref("cups").once("value").then(snapshot => snapshot.val() || {}),
+            "Timeout Firebase SDK coppe"
+        );
+    }
+
     function loadCups() {
         setStatus('<i class="fas fa-spinner"></i> Caricamento coppe...', "loading");
 
-        return fetch(`${CUPS_REST_URL}?t=${Date.now()}`, { cache: "no-store" })
-            .then(response => {
-                if (!response.ok) throw new Error(`Firebase REST ${response.status}`);
-                return response.json();
-            })
+        return loadViaFetch()
             .then(data => {
                 render(data || {});
                 return data || {};
             })
-            .catch(restError => {
-                const databaseRef = db();
-                if (!databaseRef) {
-                    setStatus(`Errore nel caricamento delle coppe: ${restError.message}`, "error");
-                    return {};
-                }
-                return databaseRef.ref("cups").once("value")
-                    .then(snapshot => {
-                        const data = snapshot.val() || {};
-                        render(data);
-                        return data;
-                    })
-                    .catch(firebaseError => {
-                        setStatus(`Errore nel caricamento delle coppe: ${firebaseError.message}`, "error");
-                        return {};
+            .catch(fetchError => {
+                console.warn("Lettura coppe via fetch non riuscita:", fetchError);
+                return loadViaXhr()
+                    .then(data => {
+                        render(data || {});
+                        return data || {};
                     });
+            })
+            .catch(xhrError => {
+                console.warn("Lettura coppe via XHR non riuscita:", xhrError);
+                return loadViaSdk()
+                    .then(data => {
+                        render(data || {});
+                        return data || {};
+                    });
+            })
+            .catch(error => {
+                setStatus(`Errore nel caricamento delle coppe: ${error.message}`, "error");
+                return {};
             });
     }
 
