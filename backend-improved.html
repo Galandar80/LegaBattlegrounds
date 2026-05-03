@@ -67,6 +67,7 @@
                     <input type="text" id="nuovoTorneo" placeholder="Nome torneo (es. Tavern Brawl #1)" style="width: 100%">
                     <input type="text" id="tipoTorneo" placeholder="Tipo torneo (es. Battlegrounds)" style="width: 100%">
                     <input type="date" id="dataTorneo" style="width: 100%">
+                    <input type="time" id="orarioTorneo" aria-label="Orario torneo" style="width: 100%">
                     <input type="url" id="linkChallonge" placeholder="Link Challonge (opzionale)" style="width: 100%">
                     <input type="url" id="immagineTorneo" placeholder="URL immagine torneo (opzionale)" style="width: 100%">
                     <select id="nuovoTorneoIscrizione" style="width: 100%">
@@ -220,6 +221,10 @@
                         <div>
                             <label for="editDataTorneo">Data Torneo:</label>
                             <input type="date" id="editDataTorneo" style="width: 100%">
+                        </div>
+                        <div>
+                            <label for="editOrarioTorneo">Orario Torneo:</label>
+                            <input type="time" id="editOrarioTorneo" style="width: 100%">
                         </div>
                         <div>
                             <label for="editLinkChallonge">Link Challonge:</label>
@@ -629,6 +634,7 @@
                                 <p><i class="fas fa-trophy"></i> Coppa: ${cupName}</p>
                                 ${torneo.tipo ? `<p><i class="fas fa-tag"></i> ${torneo.tipo}</p>` : ''}
                                 ${torneo.dataInizio ? `<p><i class="fas fa-calendar-day"></i> ${torneo.dataInizio}</p>` : ''}
+                                ${torneo.orario ? `<p><i class="far fa-clock"></i> ${torneo.orario}</p>` : ''}
                                 ${torneo.linkChallonge ? `<p><i class="fas fa-trophy"></i> <a href="${torneo.linkChallonge}" target="_blank" class="challonge-link">Bracket Challonge</a></p>` : ''}
                                 <p><i class="fas fa-trophy"></i> Vincitore: ${vincitore.nome} (${vincitore.punti || 0} punti)</p>
                             </div>
@@ -698,6 +704,7 @@
             const nome = document.getElementById('nuovoTorneo').value.trim();
             const tipo = document.getElementById('tipoTorneo').value.trim();
             const data = document.getElementById('dataTorneo').value;
+            const orario = document.getElementById('orarioTorneo').value;
             const linkChallonge = document.getElementById('linkChallonge').value.trim();
             const immagine = document.getElementById('immagineTorneo').value.trim();
             const iscrizioneAperta = document.getElementById('nuovoTorneoIscrizione').value === 'true';
@@ -718,6 +725,7 @@
 
             if (tipo) nuovoTorneo.tipo = tipo;
             if (data) nuovoTorneo.dataInizio = data;
+            if (orario) nuovoTorneo.orario = orario;
             if (linkChallonge) nuovoTorneo.linkChallonge = linkChallonge;
             if (immagine) nuovoTorneo.immagine = immagine;
             if (cupId) nuovoTorneo.cupId = cupId;
@@ -727,6 +735,7 @@
                     document.getElementById('nuovoTorneo').value = '';
                     document.getElementById('tipoTorneo').value = '';
                     document.getElementById('dataTorneo').value = '';
+                    document.getElementById('orarioTorneo').value = '';
                     document.getElementById('linkChallonge').value = '';
                     document.getElementById('immagineTorneo').value = '';
                     document.getElementById('nuovoTorneoIscrizione').value = 'true';
@@ -761,6 +770,7 @@
             document.getElementById('editNomeTorneo').value = torneo.nome;
             document.getElementById('editTipoTorneo').value = torneo.tipo || '';
             document.getElementById('editDataTorneo').value = torneo.dataInizio || '';
+            document.getElementById('editOrarioTorneo').value = torneo.orario || '';
             document.getElementById('editLinkChallonge').value = torneo.linkChallonge || '';
             document.getElementById('editImmagineTorneo').value = torneo.immagine || '';
             document.getElementById('editIscrizioneTorneo').value = torneo.iscrizioneAperta === false ? 'false' : 'true';

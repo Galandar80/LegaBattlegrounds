@@ -167,6 +167,7 @@ function updateHomeNextTournament() {
             }) : 'Data da definire';
             const imageUrl = torneo.immagine && window.safeURL ? window.safeURL(torneo.immagine, '') : (torneo.immagine || '');
             const cupName = torneo.cupId ? (cups[torneo.cupId]?.name || 'Si') : 'No';
+            const orario = torneo.orario ? `<p><strong>Orario:</strong> ${html(torneo.orario)}</p>` : '';
 
             container.innerHTML = `
                 <article class="tournament-card home-next-tournament-card" style="grid-column: 1/-1;">
@@ -178,6 +179,7 @@ function updateHomeNextTournament() {
                     ${torneo.luogo ? `<div class="tournament-location"><i class="fas fa-map-marker-alt"></i> ${html(torneo.luogo)}</div>` : ''}
                     <div class="tournament-details">
                         <p><strong>Formato:</strong> ${html(torneo.tipo || torneo.formato || 'Battlegrounds')}</p>
+                        ${orario}
                         <p><strong>Coppa:</strong> ${html(cupName)}</p>
                         <p><strong>Iscrizioni:</strong> ${torneo.iscrizioneAperta === false ? 'Chiuse' : 'Aperte'}</p>
                     </div>

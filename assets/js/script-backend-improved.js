@@ -570,6 +570,7 @@ function salvaImpostazioniTorneo() {
     const nome = document.getElementById('editNomeTorneo').value.trim();
     const tipo = document.getElementById('editTipoTorneo').value.trim();
     const data = document.getElementById('editDataTorneo').value;
+    const orario = document.getElementById('editOrarioTorneo').value;
     const linkChallonge = document.getElementById('editLinkChallonge').value.trim();
     const immagine = document.getElementById('editImmagineTorneo').value.trim();
     const cupId = document.getElementById('editTorneoCoppa').value;
@@ -585,7 +586,8 @@ function salvaImpostazioniTorneo() {
         nome: nome,
         cupId: cupId || null,
         iscrizioneAperta: iscrizioneAperta,
-        immagine: immagine || null
+        immagine: immagine || null,
+        orario: orario || null
     };
     
     // Aggiungi campo tipo se presente
@@ -616,6 +618,7 @@ function salvaImpostazioniTorneo() {
                 torneiData[torneoSelezionatoId].nome = nome;
                 if (tipo) torneiData[torneoSelezionatoId].tipo = tipo;
                 if (data) torneiData[torneoSelezionatoId].dataInizio = data;
+                torneiData[torneoSelezionatoId].orario = orario || null;
                 if (linkChallonge) torneiData[torneoSelezionatoId].linkChallonge = linkChallonge;
                 torneiData[torneoSelezionatoId].immagine = immagine || null;
                 torneiData[torneoSelezionatoId].cupId = cupId || null;
