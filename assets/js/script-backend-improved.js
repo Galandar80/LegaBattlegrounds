@@ -1108,7 +1108,10 @@ function eliminaEvento(eventoId) {
 // --- GESTIONE COPPE E HALL OF FAME ---
 
 // Inizializzazione navigazione sidebar
-document.addEventListener('DOMContentLoaded', () => {
+function initCoppeHofAdmin() {
+    if (window.__coppeHofAdminReady) return;
+    window.__coppeHofAdminReady = true;
+
     const menuTornei = document.getElementById('menuTornei');
     const menuStatistiche = document.getElementById('menuStatistiche');
     const menuEventi = document.getElementById('menuEventi');
@@ -1190,43 +1193,85 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('btnSalvaHOF')) {
         document.getElementById('btnSalvaHOF').onclick = salvaHOF;
     }
-});
+
+    caricaCoppe();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCoppeHofAdmin);
+} else {
+    initCoppeHofAdmin();
+}
 
 // Funzioni per le Coppe
 function caricaCoppe() {
-    database.ref('cups').on('value', (snapshot) => {
+    const container = document.getElementById('coppeList');
+    const selectTorneo = document.getElementById('nuovoTorneoCoppa');
+    const selectEdit = document.getElementById('editTorneoCoppa');
+
+    if (!container && !selectTorneo && !selectEdit) return;
+
+    if (container) {
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Caricamento coppe...</div>';
+    }
+
+    const cupsRef = database.ref('cups');
+    cupsRef.off('value');
+    cupsRef.on('value', (snapshot) => {
         const coppe = snapshot.val() || {};
-        const container = document.getElementById('coppeList');
-        const selectTorneo = document.getElementById('nuovoTorneoCoppa');
-        const selectEdit = document.getElementById('editTorneoCoppa');
+        const sortedCoppe = Object.entries(coppe)
+            .sort((a, b) => (a[1].name || a[1].nome || '').localeCompare(b[1].name || b[1].nome || '', 'it'));
         
-        if (!container) return;
-        container.innerHTML = '';
+        if (container) {
+            container.innerHTML = '';
+        }
         
         // Svuota select
         if (selectTorneo) selectTorneo.innerHTML = '<option value="">Nessuna Coppa</option>';
         if (selectEdit) selectEdit.innerHTML = '<option value="">Nessuna Coppa</option>';
 
-        Object.entries(coppe).forEach(([id, coppa]) => {
+        if (sortedCoppe.length === 0 && container) {
+            container.innerHTML = '<div class="no-data">Nessuna coppa creata</div>';
+        }
+
+        sortedCoppe.forEach(([id, coppa]) => {
+            const cupName = coppa.name || coppa.nome || 'Coppa senza nome';
+
             // Aggiungi alla lista
-            const item = document.createElement('div');
-            item.className = 'event-card';
-            item.style.marginBottom = '10px';
-            item.innerHTML = `
-                <div class="event-info">
-                    <strong>${coppa.name}</strong>
-                </div>
-                <div class="event-actions">
-                    <button onclick="eliminaCoppa('${id}')" class="small-button" style="background:#dc3545"><i class="fas fa-trash"></i></button>
-                </div>
-            `;
-            container.appendChild(item);
+            if (container) {
+                const item = document.createElement('div');
+                item.className = 'event-card';
+                item.style.marginBottom = '10px';
+                const info = document.createElement('div');
+                info.className = 'event-info';
+                const name = document.createElement('strong');
+                name.textContent = cupName;
+                info.appendChild(name);
+
+                const actions = document.createElement('div');
+                actions.className = 'event-actions';
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'small-button';
+                deleteButton.style.background = '#dc3545';
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteButton.addEventListener('click', () => eliminaCoppa(id));
+                actions.appendChild(deleteButton);
+
+                item.appendChild(info);
+                item.appendChild(actions);
+                container.appendChild(item);
+            }
 
             // Aggiungi alle select
-            const opt = `<option value="${id}">${coppa.name}</option>`;
+            const opt = `<option value="${id}">${cupName}</option>`;
             if (selectTorneo) selectTorneo.innerHTML += opt;
             if (selectEdit) selectEdit.innerHTML += opt;
         });
+    }, (error) => {
+        console.error("Errore nel caricamento delle coppe:", error);
+        if (container) {
+            container.innerHTML = `<div class="error">Errore nel caricamento delle coppe: ${error.message}</div>`;
+        }
     });
 }
 
