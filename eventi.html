@@ -4,153 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Eventi e Tornei - Lega dello Stretto">
-    <title>Eventi e Tornei - Lega dello Stretto</title>
-    <!-- Open Graph / Facebook -->
+    <meta name="description" content="Eventi e tornei della Battlegrounds League">
+    <title>Eventi - Battlegrounds League</title>
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://galandar80.github.io/LegaDelloStretto/eventi.html">
-    <meta property="og:title" content="Lega dello Stretto - Eventi">
-    <meta property="og:description"
-        content="Partecipa agli eventi e tornei della Lega dello Stretto. Il calendario completo delle competizioni di One Piece Card Game.">
-    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/onepiece-logo.webp">
-    <!-- Font Awesome -->
+    <meta property="og:title" content="Battlegrounds League - Eventi">
+    <meta property="og:description" content="Consulta eventi futuri e risultati degli eventi passati della Battlegrounds League.">
+    <meta property="og:image" content="assets/img/hearthstone-logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS personalizzato -->
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
-    <!-- Firebase -->
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/hearthstone-logo.png" type="image/png">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
 <body>
-    <!-- Header -->
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="logo-img">
-                <span class="site-title">Lega dello Stretto</span>
+                <img src="assets/img/hearthstone-logo.png" alt="Logo Hearthstone" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
                     <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link active">Eventi</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
-                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
-                            Admin</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
-    <!-- Hero Section per Eventi -->
-    <section class="hero eventi-hero" style="background: none; position: relative; overflow: hidden; height: 400px;">
-        <div class="hero-overlay"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)); z-index: 1;">
-        </div>
-        <div
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 0;">
-            <img src="assets/img/eventi.webp" alt="Eventi e Tornei Banner"
-                style="width: 100%; height: 100%; object-fit: cover; opacity: 1;">
-        </div>
-        <div class="hero-content fade-in" style="position: relative; z-index: 2; text-align: center; max-width: 900px;">
-            <h2 class="hero-title"
-                style="font-size: 4rem; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); letter-spacing: 3px; margin-bottom: 1.5rem; font-weight: 800; text-transform: uppercase; color: #f9f6e5;">
-                Eventi e Tornei</h2>
-            <p class="hero-subtitle"
-                style="font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); color: #f9f6e5;">Calendario
-                completo degli eventi della Lega dello Stretto</p>
-        </div>
-    </section>
-
-    <!-- Sezione Eventi Futuri -->
-    <section class="events full-events" id="events">
-        <div class="container">
-            <h2 class="section-title">Prossimi Eventi</h2>
-            <p class="section-description">Partecipa ai nostri eventi ufficiali e scala le classifiche della Lega dello
-                Stretto</p>
-
-            <div class="events-container" id="eventiContainer">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i> Caricamento eventi...
-                </div>
+    <main id="main-content">
+        <section class="hero eventi-hero">
+            <div class="hero-content fade-in">
+                <h1 class="hero-title">Eventi</h1>
+                <p class="hero-subtitle">Tornei, raduni e risultati ufficiali della community</p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Sezione Eventi Passati -->
-    <section class="events past-events" id="past-events">
-        <div class="container">
-            <h2 class="section-title">Eventi Passati</h2>
-            <p class="section-description">Guarda i risultati dei nostri eventi precedenti</p>
+        <section class="container section-container fade-in">
+            <h2 class="section-title"><i class="fas fa-calendar-check"></i> Prossimi Eventi</h2>
+            <div id="eventiContainer" class="events-grid"></div>
+        </section>
 
-            <div class="events-container" id="eventiPassatiContainer">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i> Caricamento eventi passati...
-                </div>
-            </div>
-        </div>
-    </section>
+        <section class="container section-container fade-in">
+            <h2 class="section-title"><i class="fas fa-history"></i> Eventi Passati</h2>
+            <div id="eventiPassatiContainer" class="events-grid"></div>
+        </section>
+    </main>
 
-    <!-- Sezione Informazioni Iscrizione -->
-    <section class="registration-info" id="registration">
-        <div class="container">
-            <h2 class="section-title">Come Iscriversi</h2>
-            <div class="registration-content">
-                <div class="registration-steps">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Scegli un Evento</h3>
-                            <p>Seleziona l'evento a cui vuoi partecipare dal nostro calendario</p>
-                        </div>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Contattaci</h3>
-                            <p>Unisciti al nostro gruppo WhatsApp e comunica la tua partecipazione</p>
-                        </div>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Conferma Iscrizione</h3>
-                            <p>Completa l'iscrizione pagando la quota e ricevendo la conferma</p>
-                        </div>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h3>Partecipa e Divertiti</h3>
-                            <p>Arriva all'evento in orario e preparati a giocare!</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="registration-cta">
-                    <h3>Hai domande sull'iscrizione?</h3>
-                    <p>Contattaci e ti aiuteremo con la procedura di iscrizione</p>
-                    <a href="contatti.html" class="btn btn-primary">Contattaci</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer class="main-footer">
         <div class="include-footer"></div>
     </footer>
@@ -158,4 +68,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/eventi.js"></script>
+    <script src="assets/js/visual-fx.js"></script>
 </body>
+
+</html>

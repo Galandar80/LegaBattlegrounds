@@ -1,4 +1,4 @@
-// Script migliorato per il backend della Lega dello Stretto
+// Script migliorato per il backend della Battlegrounds League
 
 // Funzioni per la gestione avanzata dei tornei e dei giocatori
 let chartInstances = {}; // Per tenere traccia dei grafici creati
@@ -28,10 +28,10 @@ function generaGraficiTorneo(torneoId) {
             data: {
                 labels: nomi,
                 datasets: [{
-                    label: 'Punti',
+                    label: 'Rating',
                     data: punti,
-                    backgroundColor: 'rgba(217, 35, 15, 0.7)',
-                    borderColor: 'rgba(217, 35, 15, 1)',
+                    backgroundColor: 'rgba(243, 210, 62, 0.7)',
+                    borderColor: 'rgba(243, 210, 62, 1)',
                     borderWidth: 1
                 }]
             },
@@ -63,7 +63,7 @@ function generaGraficiTorneo(torneoId) {
                                 return tooltipItems[0].label;
                             },
                             label: function(context) {
-                                return `Punti: ${context.raw}`;
+                                return `Rating: ${context.raw}`;
                             }
                         }
                     }
@@ -85,7 +85,7 @@ function esportaTorneoCSV(torneoId) {
     const giocatoriArray = Object.values(giocatori);
     
     // Crea l'intestazione del CSV
-    let csv = 'Nome,Punti,Posizione,Qualificato\n';
+    let csv = 'Nome,Rating,Posizione,Qualificato\n';
     
     // Aggiungi i dati dei giocatori
     giocatoriArray.forEach(giocatore => {
@@ -138,7 +138,7 @@ function generaReportTorneo(torneoId) {
                 <tr>
                     <th>Pos.</th>
                     <th>Giocatore</th>
-                    <th>Punti</th>
+                    <th>Rating</th>
                     <th>Qualificato</th>
                 </tr>
             </thead>
@@ -202,7 +202,7 @@ function calcolaStatisticheGiocatore(nomeGiocatore) {
         nome: nomeGiocatore,
         torneiPartecipati: 0,
         puntiTotali: 0,
-        mediaPunti: 0,
+        mediaRating: 0,
         vittorie: 0,
         podio: 0,
         migliorPosizione: Infinity,
@@ -257,9 +257,9 @@ function calcolaStatisticheGiocatore(nomeGiocatore) {
     // Ordina lo storico per data (più recenti prima)
     statistiche.storicoTornei.sort((a, b) => new Date(b.torneoData) - new Date(a.torneoData));
     
-    // Calcola la media punti
+    // Calcola la media Rating
     if (statistiche.torneiPartecipati > 0) {
-        statistiche.mediaPunti = Math.round(statistiche.puntiTotali / statistiche.torneiPartecipati);
+        statistiche.mediaRating = Math.round(statistiche.puntiTotali / statistiche.torneiPartecipati);
     }
     
     // Imposta l'ultimo torneo
@@ -296,11 +296,11 @@ function visualizzaProfiloGiocatore(nomeGiocatore) {
             </div>
             <div class="stat-card">
                 <div class="stat-value">${statistiche.puntiTotali}</div>
-                <div class="stat-label">Punti Totali</div>
+                <div class="stat-label">Rating Totale</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">${statistiche.mediaPunti}</div>
-                <div class="stat-label">Media Punti</div>
+                <div class="stat-value">${statistiche.mediaRating}</div>
+                <div class="stat-label">Media Rating</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">${statistiche.vittorie}</div>
@@ -323,7 +323,7 @@ function visualizzaProfiloGiocatore(nomeGiocatore) {
                     <th>Torneo</th>
                     <th>Data</th>
                     <th>Posizione</th>
-                    <th>Punti</th>
+                    <th>Rating</th>
                     <th>Qualificato</th>
                 </tr>
             </thead>
@@ -990,4 +990,205 @@ function eliminaEvento(eventoId) {
             console.error("Errore nell'eliminazione dell'evento:", error);
             showAlert(`Errore: ${error.message}`, 'error');
         });
+}
+
+// --- GESTIONE COPPE E HALL OF FAME ---
+
+// Inizializzazione navigazione sidebar
+document.addEventListener('DOMContentLoaded', () => {
+    const menuTornei = document.getElementById('menuTornei');
+    const menuStatistiche = document.getElementById('menuStatistiche');
+    const menuEventi = document.getElementById('menuEventi');
+    const menuCoppe = document.getElementById('menuCoppe');
+    const menuHOF = document.getElementById('menuHOF');
+
+    const sezioneTornei = document.getElementById('sezioneTornei');
+    const sezioneStatistiche = document.getElementById('sezioneStatistiche');
+    const sezioneEventi = document.getElementById('sezioneEventi');
+    const sezioneCoppe = document.getElementById('sezioneCoppe');
+    const sezioneHOF = document.getElementById('sezioneHOF');
+    const gestioneTorneo = document.getElementById('gestioneTorneo');
+
+    function hideAllSections() {
+        if (sezioneTornei) sezioneTornei.style.display = 'none';
+        if (sezioneStatistiche) sezioneStatistiche.style.display = 'none';
+        if (sezioneEventi) sezioneEventi.style.display = 'none';
+        if (sezioneCoppe) sezioneCoppe.style.display = 'none';
+        if (sezioneHOF) sezioneHOF.style.display = 'none';
+        if (gestioneTorneo) gestioneTorneo.style.display = 'none';
+        
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+    }
+
+    if (menuTornei) {
+        menuTornei.onclick = (e) => {
+            e.preventDefault();
+            hideAllSections();
+            sezioneTornei.style.display = 'block';
+            menuTornei.classList.add('active');
+        };
+    }
+
+    if (menuStatistiche) {
+        menuStatistiche.onclick = (e) => {
+            e.preventDefault();
+            hideAllSections();
+            sezioneStatistiche.style.display = 'block';
+            menuStatistiche.classList.add('active');
+            if (typeof caricaStatistiche === 'function') caricaStatistiche();
+        };
+    }
+
+    if (menuEventi) {
+        menuEventi.onclick = (e) => {
+            e.preventDefault();
+            hideAllSections();
+            sezioneEventi.style.display = 'block';
+            menuEventi.classList.add('active');
+            if (typeof caricaEventi === 'function') caricaEventi();
+        };
+    }
+
+    if (menuCoppe) {
+        menuCoppe.onclick = (e) => {
+            e.preventDefault();
+            hideAllSections();
+            sezioneCoppe.style.display = 'block';
+            menuCoppe.classList.add('active');
+            caricaCoppe();
+        };
+    }
+
+    if (menuHOF) {
+        menuHOF.onclick = (e) => {
+            e.preventDefault();
+            hideAllSections();
+            sezioneHOF.style.display = 'block';
+            menuHOF.classList.add('active');
+            caricaHOFBackend();
+            popolaTendinaCoppeHOF();
+        };
+    }
+
+    // Handlers per Cup/HOF
+    if (document.getElementById('btnCreaCoppa')) {
+        document.getElementById('btnCreaCoppa').onclick = creaCoppa;
+    }
+    if (document.getElementById('btnSalvaHOF')) {
+        document.getElementById('btnSalvaHOF').onclick = salvaHOF;
+    }
+});
+
+// Funzioni per le Coppe
+function caricaCoppe() {
+    database.ref('cups').on('value', (snapshot) => {
+        const coppe = snapshot.val() || {};
+        const container = document.getElementById('coppeList');
+        const selectTorneo = document.getElementById('nuovoTorneoCoppa');
+        const selectEdit = document.getElementById('editTorneoCoppa');
+        
+        if (!container) return;
+        container.innerHTML = '';
+        
+        // Svuota select
+        if (selectTorneo) selectTorneo.innerHTML = '<option value="">Nessuna Coppa</option>';
+        if (selectEdit) selectEdit.innerHTML = '<option value="">Nessuna Coppa</option>';
+
+        Object.entries(coppe).forEach(([id, coppa]) => {
+            // Aggiungi alla lista
+            const item = document.createElement('div');
+            item.className = 'event-card';
+            item.style.marginBottom = '10px';
+            item.innerHTML = `
+                <div class="event-info">
+                    <strong>${coppa.name}</strong>
+                </div>
+                <div class="event-actions">
+                    <button onclick="eliminaCoppa('${id}')" class="small-button" style="background:#dc3545"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(item);
+
+            // Aggiungi alle select
+            const opt = `<option value="${id}">${coppa.name}</option>`;
+            if (selectTorneo) selectTorneo.innerHTML += opt;
+            if (selectEdit) selectEdit.innerHTML += opt;
+        });
+    });
+}
+
+function creaCoppa() {
+    const nome = document.getElementById('nuovaCoppaNome').value.trim();
+    if (!nome) return showAlert('Inserisci un nome per la coppa', 'error');
+    
+    database.ref('cups').push({ name: nome, creatoIl: new Date().toISOString() })
+        .then(() => {
+            showAlert('Coppa creata!');
+            document.getElementById('nuovaCoppaNome').value = '';
+        });
+}
+
+function eliminaCoppa(id) {
+    if (confirm('Eliminare questa coppa? I tornei associati non verranno eliminati ma non saranno più collegati.')) {
+        database.ref(`cups/${id}`).remove();
+    }
+}
+
+// Funzioni per HOF
+function popolaTendinaCoppeHOF() {
+    database.ref('cups').once('value', (snapshot) => {
+        const coppe = snapshot.val() || {};
+        const select = document.getElementById('hofCoppaVinta');
+        if (!select) return;
+        select.innerHTML = '<option value="">Seleziona Coppa</option>';
+        Object.values(coppe).forEach(coppa => {
+            select.innerHTML += `<option value="${coppa.name}">${coppa.name}</option>`;
+        });
+    });
+}
+
+function salvaHOF() {
+    const nome = document.getElementById('hofVincitoreNome').value.trim();
+    const cupName = document.getElementById('hofCoppaVinta').value;
+    const imageUrl = document.getElementById('hofImmagineUrl').value.trim();
+
+    if (!nome || !cupName) return showAlert('Nome e Coppa sono obbligatori', 'error');
+
+    database.ref('hallOfFame').push({
+        nome, cupName, imageUrl, creatoIl: new Date().toISOString()
+    }).then(() => {
+        showAlert('Vincitore aggiunto!');
+        document.getElementById('hofVincitoreNome').value = '';
+        document.getElementById('hofImmagineUrl').value = '';
+    });
+}
+
+function caricaHOFBackend() {
+    database.ref('hallOfFame').on('value', (snapshot) => {
+        const hofs = snapshot.val() || {};
+        const container = document.getElementById('hofList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        Object.entries(hofs).forEach(([id, hof]) => {
+            const item = document.createElement('div');
+            item.className = 'event-card';
+            item.style.marginBottom = '10px';
+            item.innerHTML = `
+                <div class="event-info">
+                    <strong>${hof.nome}</strong> - ${hof.cupName}
+                </div>
+                <div class="event-actions">
+                    <button onclick="eliminaHOF('${id}')" class="small-button" style="background:#dc3545"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    });
+}
+
+function eliminaHOF(id) {
+    if (confirm('Rimuovere questo vincitore?')) {
+        database.ref(`hallOfFame/${id}`).remove();
+    }
 }

@@ -1,11 +1,13 @@
 // Script specifico per la pagina premi
+const html = window.escapeHTML || (value => String(value ?? ''));
+
 document.addEventListener('DOMContentLoaded', function () {
-    // Carica la classifica punti
-    loadPuntiTotaliConPosizione();
+    // Carica la classifica rating
+    loadRatingTotaleConPosizione();
 });
 
-// Funzione per caricare i punti totali con posizione
-function loadPuntiTotaliConPosizione() {
+// Funzione per caricare i rating totali con posizione
+function loadRatingTotaleConPosizione() {
     if (typeof database === 'undefined') {
         console.error("Firebase database non inizializzato.");
         return;
@@ -14,36 +16,36 @@ function loadPuntiTotaliConPosizione() {
     database.ref('tornei').once('value')
         .then(snapshot => {
             const tornei = snapshot.val() || {};
-            const giocatoriPunti = {};
+            const giocatoriRating = {};
 
-            // Calcola i punti totali per ogni giocatore
+            // Calcola i rating totali per ogni giocatore
             Object.values(tornei).forEach(torneo => {
                 const giocatori = torneo.giocatori || {};
                 Object.keys(giocatori).forEach(giocatoreId => {
                     const giocatore = giocatori[giocatoreId];
-                    if (!giocatoriPunti[giocatoreId]) {
-                        giocatoriPunti[giocatoreId] = {
+                    if (!giocatoriRating[giocatoreId]) {
+                        giocatoriRating[giocatoreId] = {
                             nome: giocatore.nome,
-                            punti: 0
+                            rating: 0
                         };
                     }
-                    giocatoriPunti[giocatoreId].punti += giocatore.punti || 0;
+                    giocatoriRating[giocatoreId].rating += giocatore.rating || giocatore.punti || 0;
                 });
             });
 
             // Converti in array e ordina
-            const giocatoriArray = Object.keys(giocatoriPunti).map(id => {
+            const giocatoriArray = Object.keys(giocatoriRating).map(id => {
                 return {
                     id: id,
-                    nome: giocatoriPunti[id].nome,
-                    punti: giocatoriPunti[id].punti
+                    nome: giocatoriRating[id].nome,
+                    rating: giocatoriRating[id].rating
                 };
             });
 
-            giocatoriArray.sort((a, b) => b.punti - a.punti);
+            giocatoriArray.sort((a, b) => b.rating - a.rating);
 
             // Aggiorna la tabella
-            const tbody = document.getElementById('puntiTotaliBody');
+            const tbody = document.getElementById('ratingTotaleBody');
 
             if (!tbody) return;
 
@@ -65,17 +67,21 @@ function loadPuntiTotaliConPosizione() {
                     row.classList.add(`position-${index + 1}`);
                 }
 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td class="player-name" onclick="showUserProfile('${giocatore.id}', '${giocatore.nome}')">${giocatore.nome}</td>
-                    <td>${giocatore.punti}</td>
-                `;
+                const posCell = document.createElement('td');
+                posCell.textContent = index + 1;
+                const nameCell = document.createElement('td');
+                nameCell.className = 'player-name';
+                nameCell.textContent = giocatore.nome || 'Giocatore';
+                nameCell.addEventListener('click', () => showUserProfile(giocatore.id, giocatore.nome || ''));
+                const ratingCell = document.createElement('td');
+                ratingCell.textContent = giocatore.rating;
+                row.append(posCell, nameCell, ratingCell);
                 tbody.appendChild(row);
             });
         })
         .catch(error => {
-            console.error("Errore nel caricamento dei punti totali:", error);
-            const tbody = document.getElementById('puntiTotaliBody');
+            console.error("Errore nel caricamento dei rating totali:", error);
+            const tbody = document.getElementById('ratingTotaleBody');
             if (tbody) {
                 tbody.innerHTML = `
                     <tr>

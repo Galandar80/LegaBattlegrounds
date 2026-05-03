@@ -4,82 +4,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Classifiche ufficiali della Lega dello Stretto">
-    <title>Classifiche - Lega dello Stretto</title>
+    <meta name="description" content="Classifiche ufficiali della Battlegrounds League">
+    <title>Ranking - Battlegrounds League</title>
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://galandar80.github.io/LegaDelloStretto/classifica.html">
-    <meta property="og:title" content="Lega dello Stretto - Classifiche">
+    <meta property="og:title" content="Battlegrounds League - Ranking">
     <meta property="og:description"
-        content="Consulta le classifiche aggiornate della Lega dello Stretto. Scopri chi sono i migliori giocatori di One Piece Card Game.">
-    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/onepiece-logo.webp">
+        content="Consulta il ranking aggiornato della Battlegrounds League. Scopri chi sono i migliori giocatori di Hearthstone Battlegrounds.">
+    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/battlegrounds-league-emblem.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS personalizzato -->
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
-<body>
+<body class="page-ranking">
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <!-- Header -->
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="logo-img">
-                <span class="site-title">Lega dello Stretto</span>
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
-                    <li class="nav-item"><a href="classifica.html" class="nav-link active">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link">Eventi</a></li>
+                    <li class="nav-item"><a href="classifica.html" class="nav-link active" aria-current="page">Classifiche</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
-                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
-                            Admin</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
     <!-- Hero Section per Classifiche -->
-    <section class="hero eventi-hero" style="background: none; position: relative; overflow: hidden; height: 400px;">
-        <div class="hero-overlay"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)); z-index: 1;">
-        </div>
-        <div
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 0;">
-            <img src="assets/img/classifiche.webp" alt="One Piece Classifiche Banner"
-                style="width: 100%; height: 100%; object-fit: cover; opacity: 1;">
-        </div>
-        <div class="hero-content fade-in" style="position: relative; z-index: 2; text-align: center; max-width: 900px;">
-            <h1 class="hero-title"
-                style="font-size: 4rem; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); letter-spacing: 3px; margin-bottom: 1.5rem; font-weight: 800; text-transform: uppercase; color: #f9f6e5;">
-                CLASSIFICHE</h1>
-            <p class="hero-subtitle"
-                style="font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); color: #f9f6e5;">Scopri i
-                migliori giocatori della Lega dello Stretto</p>
+    <section class="hero page-hero eventi-hero">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">Ranking</h1>
+            <p class="hero-subtitle">Scopri i migliori giocatori della Battlegrounds League</p>
         </div>
     </section>
 
     <!-- Contenuto principale -->
     <main class="container">
+        <section class="ranking-overview premium-dashboard-strip" aria-label="Sintesi ranking">
+            <article class="premium-metric-card">
+                <span class="metric-kicker">Stagione</span>
+                <strong>Ranking attivo</strong>
+                <span>Classifica aggiornata dopo ogni torneo</span>
+            </article>
+            <article class="premium-metric-card">
+                <span class="metric-kicker">Formato</span>
+                <strong>MMR + Coppe</strong>
+                <span>Rating stagionale e progressi per coppa</span>
+            </article>
+            <article class="premium-metric-card">
+                <span class="metric-kicker">Profilo</span>
+                <strong>Storico player</strong>
+                <span>Clicca un nome per aprire il riepilogo</span>
+            </article>
+        </section>
+
+        <section class="ranking-podium section-container fade-in" aria-labelledby="podiumTitle">
+            <h2 id="podiumTitle" class="section-title"><i class="fas fa-crown"></i> Podio Lega</h2>
+            <div id="rankingPodium" class="podium-grid">
+                <article class="podium-card podium-card-second">
+                    <div class="podium-rank">2</div>
+                    <div class="podium-name">In attesa</div>
+                    <div class="podium-points">0 MMR</div>
+                </article>
+                <article class="podium-card podium-card-first">
+                    <div class="podium-rank">1</div>
+                    <div class="podium-name">In attesa</div>
+                    <div class="podium-points">0 MMR</div>
+                </article>
+                <article class="podium-card podium-card-third">
+                    <div class="podium-rank">3</div>
+                    <div class="podium-name">In attesa</div>
+                    <div class="podium-points">0 MMR</div>
+                </article>
+            </div>
+        </section>
+
         <!-- Contenitore Flex per le tre tabelle affiancate -->
-        <div class="tables-container">
+        <div class="tables-container premium-ranking-grid">
             <!-- Classifica Torneo -->
-            <section class="section-container fade-in table-section">
-                <h2 class="section-title"><i class="fas fa-list-ol"></i> Classifica Torneo</h2>
+            <section class="section-container fade-in table-section ranking-card-shell">
+                <h2 class="section-title premium-table-title"><i class="fas fa-list-ol"></i> Ranking Torneo</h2>
                 <div class="filter-container">
                     <select id="selectTorneo" onchange="updateClassificaTorneo()" class="form-select">
                         <option value="" disabled selected>Caricamento tornei...</option>
@@ -92,7 +115,7 @@
                             <tr>
                                 <th>Posizione</th>
                                 <th>Giocatore</th>
-                                <th>Punti</th>
+                                <th>Rating (MMR)</th>
                             </tr>
                         </thead>
                         <tbody id="classificaTorneoBody">
@@ -109,12 +132,12 @@
             </section>
 
             <!-- Punti Totali -->
-            <section class="section-container fade-in table-section">
-                <h2 class="section-title"><i class="fas fa-star"></i> Punti Totali</h2>
+            <section class="section-container fade-in table-section ranking-card-shell">
+                <h2 class="section-title premium-table-title"><i class="fas fa-star"></i> Punti Totali</h2>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
-                            <tr>
+                            <tr id="puntiTotaliHeader">
                                 <th>Giocatore</th>
                                 <th>Punti</th>
                             </tr>
@@ -133,8 +156,8 @@
             </section>
 
             <!-- Storico Tornei Giocatori -->
-            <section class="section-container fade-in table-section">
-                <h2 class="section-title"><i class="fas fa-history"></i> Storico Partecipazioni</h2>
+            <section class="section-container fade-in table-section ranking-card-shell">
+                <h2 class="section-title premium-table-title"><i class="fas fa-history"></i> Storico Partecipazioni</h2>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -219,6 +242,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/classifica.js"></script>
+    <script src="assets/js/visual-fx.js"></script>
 </body>
 
 </html>

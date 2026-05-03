@@ -1,3 +1,27 @@
+function escapeHTML(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function safeURL(value, fallback = '#') {
+    try {
+        const url = new URL(String(value || ''), window.location.href);
+        if (url.protocol === 'http:' || url.protocol === 'https:' || url.protocol === 'mailto:') {
+            return url.href;
+        }
+    } catch (error) {
+        return fallback;
+    }
+    return fallback;
+}
+
+window.escapeHTML = escapeHTML;
+window.safeURL = safeURL;
+
 // Funzione per caricare il footer
 document.addEventListener('DOMContentLoaded', function () {
     // Seleziona tutti gli elementi con classe include-footer
@@ -8,41 +32,31 @@ document.addEventListener('DOMContentLoaded', function () {
         const footerHTML = `
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="footer-logo-img">
-                    <p>La community di Messina più grande del Sud Italia</p>
+                <div class="footer-info">
+                    <h3>Battlegrounds League</h3>
+                    <p>La community ufficiale per gli appassionati di Hearthstone Battlegrounds.</p>
                 </div>
                 <div class="footer-links">
-                    <h4>Links Utili</h4>
+                    <h4>Link Rapidi</h4>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="tornei.html">Tornei</a></li>
                         <li><a href="classifica.html">Classifiche</a></li>
-                        <li><a href="eventi.html">Eventi</a></li>
+                        <li><a href="hall-of-fame.html">Hall Of Fame</a></li>
                         <li><a href="regolamento.html">Regolamento</a></li>
-                        <li><a href="partners.html">Partner</a></li>
-                        <li><a href="deck-viewer.html">Invia il tuo Deck</a></li>
                         <li><a href="contatti.html">Contatti</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h4>Social</h4>
-                    <ul>
-                        <li><a href="https://www.instagram.com/redshift_gaming/" target="_blank">Instagram</a></li>
-                        <li><a href="https://www.facebook.com/RedShiftGaming" target="_blank">Facebook</a></li>
-                    </ul>
-                </div>
-                <div class="footer-newsletter">
-                    <h4>Resta Aggiornato</h4>
-                    <p>Iscriviti alla nostra newsletter per ricevere aggiornamenti sui prossimi eventi e le ultime novità.</p>
-                    <form class="newsletter-form">
-                        <input type="email" placeholder="La tua email" required>
-                        <button type="submit" class="btn btn-primary">Iscriviti</button>
-                    </form>
+                    <div class="social-links">
+                        <a href="#" style="margin-right: 15px;"><i class="fab fa-discord"></i> Discord</a><br>
+                        <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2023 Lega dello Stretto. Tutti i diritti riservati.</p>
+                <p>&copy; 2026 Battlegrounds League. Tutti i diritti riservati.</p>
             </div>
         </div>`;
 
@@ -58,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mobileMenuBtn && navMenu) {
         mobileMenuBtn.addEventListener('click', () => {
             navMenu.classList.toggle('active');
+            const isOpen = navMenu.classList.contains('active');
+            mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
     }
 

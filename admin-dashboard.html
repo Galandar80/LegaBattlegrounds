@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Lega dello Stretto</title>
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <title>Admin Dashboard - Battlegrounds League</title>
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
-            window.location.href = 'admin-login.html';
-        }
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/admin-auth.js"></script>
+    <script>AdminAuth.requireAuth();</script>
     <style>
         .admin-grid {
             display: grid;
@@ -77,9 +77,9 @@
                     <h3>Gestione Deck</h3>
                     <p>Amministra il database delle carte e dei mazzi.</p>
                 </a>
-                <a href="calculator.htm" class="admin-card">
+                <a href="calculator.html" class="admin-card">
                     <i class="fas fa-calculator"></i>
-                    <h3>Calcolatore</h3>
+                    <span>Dashboard Battlegrounds League</span>
                     <p>Strumento per calcoli rapidi durante i tornei.</p>
                 </a>
             </div>
@@ -88,8 +88,7 @@
 
     <script>
         document.getElementById('logoutBtn').addEventListener('click', function () {
-            sessionStorage.removeItem('adminAuthenticated');
-            window.location.href = 'admin-login.html';
+            AdminAuth.logout();
         });
     </script>
 </body>

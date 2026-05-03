@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classifiche - Lega dello Stretto</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <title>Classifiche - Battlegrounds League</title>
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
@@ -14,8 +14,8 @@
 <body>
     <header>
         <div class="logo">
-            <i class="fas fa-trophy"></i>
-            <span>Lega dello Stretto</span>
+            <img src="assets/img/hearthstone-logo.png" alt="Logo Hearthstone" style="height: 40px; margin-right: 10px;">
+            <span>Battlegrounds League</span>
         </div>
         <nav class="main-nav">
             <ul>
@@ -44,7 +44,7 @@
                     <tr>
                         <th>Posizione</th>
                         <th>Giocatore</th>
-                        <th>Punti</th>
+                        <th>Rating</th>
                     </tr>
                 </thead>
                 <tbody id="classificaTorneoBody">
@@ -57,9 +57,9 @@
             </table>
         </div>
 
-        <!-- Qualificati One Piece -->
+        <!-- Campioni della Taverna -->
         <div class="section fade-in">
-            <h2><i class="fas fa-flag-checkered"></i> Qualificati One Piece</h2>
+            <h2><i class="fas fa-flag-checkered"></i> Campioni della Taverna</h2>
             <table class="qualificati-table">
                 <thead>
                     <tr>
@@ -77,20 +77,21 @@
             </table>
         </div>
 
-        <!-- Punti Totali -->
+        <!-- Rating Totale -->
         <div class="section fade-in">
-            <h2><i class="fas fa-star"></i> Punti Totali</h2>
+            <h2><i class="fas fa-star"></i> Rating Totale (MMR)</h2>
             <table class="punti-totali">
+            <table class="rating-totali">
                 <thead>
                     <tr>
                         <th>Giocatore</th>
-                        <th>Punti</th>
+                        <th>Rating</th>
                     </tr>
                 </thead>
-                <tbody id="puntiTotaliBody">
+                <tbody id="ratingTotaleBody">
                     <tr>
                         <td colspan="2" class="loading">
-                            <i class="fas fa-spinner"></i> Caricamento punti...
+                            <i class="fas fa-spinner"></i> Caricamento rating...
                         </td>
                     </tr>
                 </tbody>
@@ -152,36 +153,36 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>800 punti</td>
-                        <td>8 bustine</td>
+                        <td>800 rating</td>
+                        <td>8 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>720 punti</td>
-                        <td>7 bustine</td>
+                        <td>720 rating</td>
+                        <td>7 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>630 punti</td>
-                        <td>6 bustine</td>
+                        <td>630 rating</td>
+                        <td>6 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>540 punti</td>
-                        <td>5 bustine</td>
+                        <td>540 rating</td>
+                        <td>5 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>450 punti</td>
-                        <td>4 bustine</td>
+                        <td>450 rating</td>
+                        <td>4 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>400 punti</td>
-                        <td>3 bustine</td>
+                        <td>400 rating</td>
+                        <td>3 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>350 punti</td>
-                        <td>2 bustine</td>
+                        <td>350 rating</td>
+                        <td>2 pacchetti</td>
                     </tr>
                     <tr>
-                        <td>250 punti</td>
-                        <td>1 bustina</td>
+                        <td>250 rating</td>
+                        <td>1 pacchetto</td>
                     </tr>
                 </tbody>
             </table>
@@ -202,12 +203,12 @@
                     <div class="stat-label">Tornei</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="statPuntiTotali">0</div>
-                    <div class="stat-label">Punti Totali</div>
+                    <div class="stat-value" id="statRatingTotale">0</div>
+                    <div class="stat-label">Rating Totale</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="statMediaPunti">0</div>
-                    <div class="stat-label">Media Punti</div>
+                    <div class="stat-value" id="statMediaRating">0</div>
+                    <div class="stat-label">Media Rating</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="statMigliorPosizione">-</div>
@@ -222,7 +223,7 @@
                         <th>Torneo</th>
                         <th>Data</th>
                         <th>Posizione</th>
-                        <th>Punti</th>
+                        <th>Rating</th>
                         <th>Partecipanti</th>
                     </tr>
                 </thead>
@@ -290,7 +291,7 @@
                         row.innerHTML = `
                             <td>${giocatore.posizione}°</td>
                             <td class="player-name" onclick="showUserProfile(null, '${giocatore.nome}')">${giocatore.nome}</td>
-                            <td>${giocatore.punti}</td>
+                            <td>${giocatore.rating || giocatore.punti}</td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -351,9 +352,9 @@
             });
         }
 
-        function updatePuntiTotali() {
-            console.log("Aggiorno punti totali - Versione personalizzata");
-            const container = document.getElementById('puntiTotaliBody');
+        function updateRatingTotali() {
+            console.log("Aggiorno rating totali - Versione personalizzata");
+            const container = document.getElementById('ratingTotaleBody');
             container.innerHTML = '';
 
             // Oggetto per memorizzare i punti totali per ogni giocatore (usando il nome come chiave)
@@ -381,11 +382,11 @@
 
             console.log("Giocatori punti dopo elaborazione:", giocatoriPunti);
 
-            // Creo una riga per ogni giocatore UNICO, ordinati per punti totali
-            Object.entries(giocatoriPunti)
-                .sort((a, b) => b[1] - a[1]) // Ordino per punti totali (dal più alto al più basso)
-                .forEach(([nome, punti]) => {
-                    console.log(`Creo riga per ${nome} con ${punti} punti`);
+            // Creo una riga per ogni giocatore UNICO, ordinati per rating totali
+            Object.entries(giocatoriRating)
+                .sort((a, b) => b[1] - a[1]) // Ordino per rating totali (dal più alto al più basso)
+                .forEach(([nome, rating]) => {
+                    console.log(`Creo riga per ${nome} con ${rating} rating`);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="player-name" onclick="showUserProfile(null, '${nome}')">${nome}</td>

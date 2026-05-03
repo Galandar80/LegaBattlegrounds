@@ -16,7 +16,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             });
 
             // Close mobile menu if open
-            if (mainNav.classList.contains('active')) {
+            const mainNav = document.getElementById('mainNav');
+            if (mainNav && mainNav.classList.contains('active')) {
                 mainNav.classList.remove('active');
             }
         }
@@ -150,8 +151,8 @@ function updateTopPlayers(torneiData) {
         item.className = 'ranking-item';
         item.innerHTML = `
             <span class="ranking-position">${index + 1}</span>
-            <span class="ranking-player">${nome}</span>
-            <span class="ranking-points">${punti} pt</span>
+            <span class="ranking-player">${html(nome)}</span>
+            <span class="ranking-points">${html(punti)} pt</span>
         `;
         container.appendChild(item);
     });
@@ -192,8 +193,8 @@ function updateQualificati(torneiData) {
         item.className = 'ranking-item';
         item.innerHTML = `
             <span class="ranking-position">${index + 1}</span>
-            <span class="ranking-player">${q.nome}</span>
-            <span class="ranking-points">${q.torneo}</span>
+            <span class="ranking-player">${html(q.nome)}</span>
+            <span class="ranking-points">${html(q.torneo)}</span>
         `;
         container.appendChild(item);
     });
@@ -280,17 +281,19 @@ function updateEventi() {
                 ];
 
                 // Usa l'immagine homepage se disponibile, altrimenti usa l'immagine standard o una predefinita
-                const immagineEvento = evento.immagineHome || evento.immagine || immaginiDefault[index % immaginiDefault.length];
+                const immagineEvento = window.safeURL
+                    ? window.safeURL(evento.immagineHome || evento.immagine, immaginiDefault[index % immaginiDefault.length])
+                    : (evento.immagineHome || evento.immagine || immaginiDefault[index % immaginiDefault.length]);
 
                 const eventCard = document.createElement('div');
                 eventCard.className = 'event-card';
                 eventCard.innerHTML = `
-                    <img src="${immagineEvento}" alt="${evento.nome}" class="event-img" onerror="this.src='${immaginiDefault[index % immaginiDefault.length]}'">
+                    <img src="${immagineEvento}" alt="${html(evento.nome || 'Evento')}" class="event-img" onerror="this.src='${immaginiDefault[index % immaginiDefault.length]}'">
                     <div class="event-info">
-                        <h3 class="event-title">${evento.nome}</h3>
+                        <h3 class="event-title">${html(evento.nome || 'Evento Battlegrounds League')}</h3>
                         <p class="event-date"><i class="far fa-calendar-alt"></i> ${formattedData} ${countdownText ? `<span class="countdown-badge">${countdownText}</span>` : ''}</p>
-                        <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${evento.luogo || 'Luogo da definire'}</p>
-                        <p class="event-description">${evento.descrizione || 'Vieni a partecipare a questo evento della Lega dello Stretto!'}</p>
+                        <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${html(evento.luogo || 'Luogo da definire')}</p>
+                        <p class="event-description">${html(evento.descrizione || 'Vieni a partecipare a questo evento della Battlegrounds League!')}</p>
                         <a href="eventi.html" class="event-link">Maggiori Informazioni</a>
                     </div>
                 `;
@@ -343,8 +346,8 @@ function initFirebaseAndLoadRankings() {
 
                 // Se non ci sono statistiche, calcola i tornei dal database
                 const statsContainer = document.getElementById('statsContainer');
-                const counters = statsContainer.querySelectorAll('.counter');
-                if (counters[1].getAttribute('data-count') === '0') {
+                const counters = statsContainer ? statsContainer.querySelectorAll('.counter') : [];
+                if (counters[1] && counters[1].getAttribute('data-count') === '0') {
                     const numTornei = Object.keys(torneiData).length;
                     counters[1].setAttribute('data-count', numTornei);
                     counters[1].textContent = numTornei + '+';
@@ -429,7 +432,7 @@ function initFirebaseAndLoadRankings() {
                         <h3 class="event-title">Torneo Regionale Messina</h3>
                         <p class="event-date"><i class="far fa-calendar-alt"></i> 22 Dicembre 2023</p>
                         <p class="event-location"><i class="fas fa-map-marker-alt"></i> Games Academy Messina</p>
-                        <p class="event-description">Il più grande torneo regionale della Lega dello Stretto con un montepremi di €800 e premi esclusivi.</p>
+                        <p class="event-description">Il più grande torneo regionale della Battlegrounds League con un montepremi di 800 pacchetti e premi esclusivi.</p>
                         <a href="eventi.html" class="event-link">Maggiori Informazioni</a>
                     </div>
                 </div>
@@ -503,3 +506,4 @@ function updateStats(stats) {
     // Avvia l'animazione dei contatori
     animateCounters();
 }
+const html = window.escapeHTML || (value => String(value ?? ''));

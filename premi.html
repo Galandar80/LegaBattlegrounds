@@ -4,47 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premi - RedShift TournamentHub</title>
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <title>Premi - Battlegrounds League</title>
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/hearthstone-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <!-- Header con navigazione -->
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="logo-img">
-                <span class="site-title">Lega dello Stretto</span>
+                <img src="assets/img/hearthstone-logo.png" alt="Logo Hearthstone" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
                     <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link">Eventi</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
-                    <li class="nav-item"><a href="premi.html" class="nav-link active">Premi</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
-                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
-                            Admin</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
     <!-- Contenuto principale -->
-    <main class="container">
+    <main class="container" id="main-content">
         <section class="page-header">
             <h1 class="gradient-text">Premi</h1>
             <p class="subtitle">Scopri i premi che puoi vincere partecipando ai nostri tornei</p>
@@ -54,8 +49,8 @@
         <section class="points-section">
             <div class="section-header">
                 <i class="fas fa-medal trophy-icon"></i>
-                <h2 class="section-title">Classifica Punti</h2>
-                <p class="section-subtitle">I giocatori con più punti nella stagione corrente</p>
+                <h2 class="section-title">Classifica Rating</h2>
+                <p class="section-subtitle">I giocatori con più rating MMR nella stagione corrente</p>
             </div>
 
             <div class="table-container">
@@ -64,7 +59,7 @@
                         <tr>
                             <th>Posizione</th>
                             <th>Giocatore</th>
-                            <th>Punti Totali</th>
+                            <th>Rating Totale</th>
                         </tr>
                     </thead>
                     <tbody id="puntiTotaliBody">
@@ -94,10 +89,10 @@
                     <div class="prize-content">
                         <h3 class="prize-title">Premio Campione</h3>
                         <ul class="prize-items">
-                            <li><i class="fas fa-euro-sign"></i> €500 in contanti</li>
-                            <li><i class="fas fa-gamepad"></i> Setup Gaming Pro</li>
-                            <li><i class="fas fa-ticket-alt"></i> Accesso VIP eventi RedShift</li>
-                            <li><i class="fas fa-certificate"></i> Titolo "Campione RedShift"</li>
+                            <li><i class="fas fa-euro-sign"></i> €500 in premi</li>
+                            <li><i class="fas fa-gamepad"></i> Setup Gaming Tavern</li>
+                            <li><i class="fas fa-ticket-alt"></i> Accesso VIP eventi Battlegrounds</li>
+                            <li><i class="fas fa-certificate"></i> Titolo "Locandiere Supremo"</li>
                         </ul>
                     </div>
                 </div>
@@ -111,9 +106,9 @@
                     <div class="prize-content">
                         <h3 class="prize-title">Premio Finalista</h3>
                         <ul class="prize-items">
-                            <li><i class="fas fa-euro-sign"></i> €250 in contanti</li>
-                            <li><i class="fas fa-headset"></i> Cuffie Gaming Premium</li>
-                            <li><i class="fas fa-ticket-alt"></i> Accesso eventi RedShift</li>
+                            <li><i class="fas fa-euro-sign"></i> €250 in premi</li>
+                            <li><i class="fas fa-headset"></i> Cuffie Gaming Taverna</li>
+                            <li><i class="fas fa-ticket-alt"></i> Accesso eventi Battlegrounds</li>
                         </ul>
                     </div>
                 </div>
@@ -127,9 +122,9 @@
                     <div class="prize-content">
                         <h3 class="prize-title">Premio Semifinalista</h3>
                         <ul class="prize-items">
-                            <li><i class="fas fa-euro-sign"></i> €100 in contanti</li>
-                            <li><i class="fas fa-mouse"></i> Mouse Gaming Pro</li>
-                            <li><i class="fas fa-tshirt"></i> T-shirt RedShift esclusiva</li>
+                            <li><i class="fas fa-euro-sign"></i> €100 in premi</li>
+                            <li><i class="fas fa-mouse"></i> Mouse Gaming Tavern</li>
+                            <li><i class="fas fa-tshirt"></i> T-shirt Battlegrounds esclusiva</li>
                         </ul>
                     </div>
                 </div>
@@ -150,8 +145,8 @@
                             <td>
                                 <ul class="prize-list">
                                     <li>€50 in buoni acquisto</li>
-                                    <li>Mousepad RedShift</li>
-                                    <li>50 Punti Bonus per la prossima stagione</li>
+                                    <li>Mousepad Battlegrounds</li>
+                                    <li>50 Rating Bonus per la prossima stagione</li>
                                 </ul>
                             </td>
                         </tr>
@@ -159,8 +154,8 @@
                             <td>9° - 16° posto</td>
                             <td>
                                 <ul class="prize-list">
-                                    <li>Mousepad RedShift</li>
-                                    <li>25 Punti Bonus per la prossima stagione</li>
+                                    <li>Mousepad Battlegrounds</li>
+                                    <li>25 Rating Bonus per la prossima stagione</li>
                                 </ul>
                             </td>
                         </tr>
@@ -168,7 +163,7 @@
                             <td>17° - 32° posto</td>
                             <td>
                                 <ul class="prize-list">
-                                    <li>10 Punti Bonus per la prossima stagione</li>
+                                    <li>10 Rating Bonus per la prossima stagione</li>
                                 </ul>
                             </td>
                         </tr>
@@ -181,8 +176,8 @@
         <section class="qualification-section">
             <div class="section-header">
                 <i class="fas fa-star trophy-icon"></i>
-                <h2 class="section-title">Punti Qualificazione</h2>
-                <p class="section-subtitle">Punti necessari per qualificarsi ai tornei speciali</p>
+                <h2 class="section-title">Rating Qualificazione</h2>
+                <p class="section-subtitle">Rating MMR necessario per qualificarsi ai tornei speciali</p>
             </div>
 
             <div class="qualification-cards">
@@ -193,7 +188,7 @@
                         <h3>Torneo dei Campioni</h3>
                     </div>
                     <div class="qualification-content">
-                        <div class="qualification-points">500 punti</div>
+                        <div class="qualification-points">500 rating</div>
                         <p class="qualification-description">Torneo esclusivo per i migliori giocatori della stagione
                             con montepremi maggiorato</p>
                         <div class="qualification-date">Dicembre 2023</div>
@@ -207,7 +202,7 @@
                         <h3>Torneo Elite</h3>
                     </div>
                     <div class="qualification-content">
-                        <div class="qualification-points">300 punti</div>
+                        <div class="qualification-points">300 rating</div>
                         <p class="qualification-description">Torneo per giocatori di alto livello con premi esclusivi
                         </p>
                         <div class="qualification-date">Settembre 2023</div>
@@ -221,7 +216,7 @@
                         <h3>Torneo Sfidanti</h3>
                     </div>
                     <div class="qualification-content">
-                        <div class="qualification-points">150 punti</div>
+                        <div class="qualification-points">150 rating</div>
                         <p class="qualification-description">Torneo intermedio con possibilità di qualificarsi ai tornei
                             superiori</p>
                         <div class="qualification-date">Giugno 2023</div>

@@ -4,17 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Lega dello Stretto</title>
+    <title>Admin - Battlegrounds League</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
-            window.location.href = 'admin-login.html';
-        }
-    </script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/admin-auth.js"></script>
+    <script>AdminAuth.requireAuth();</script>
 </head>
 
 <body>
@@ -71,8 +70,7 @@
         </div>
     </div>
 
-    <script src="assets/js/firebase-config.js"></script>
-    <script src="script-backend.js"></script>
+    <script src="assets/js/script-backend.js"></script>
     <script>
         let torneiData = {};
         let torneoSelezionatoId = null;
@@ -143,7 +141,7 @@
                     div.innerHTML = `
                         <div style="flex-grow: 1">
                             <strong>${giocatore.nome}</strong><br>
-                            Punti: ${giocatore.punti} - Posizione: ${giocatore.posizione}°
+                            Rating: ${giocatore.punti} - Posizione: ${giocatore.posizione}°
                         </div>
                         <div class="flex-group">
                             <input type="number" id="punti-${giocatoreId}" 
@@ -153,7 +151,7 @@
                             <label style="display: flex; align-items: center; gap: 5px;">
                                 <input type="checkbox" id="qualificato-${giocatoreId}" 
                                     ${giocatore.qualificato ? 'checked' : ''}>
-                                OP
+                                HS
                             </label>
                             <button onclick="salvaModificheGiocatore('${torneoId}', '${giocatoreId}')" 
                                     class="small-button">Salva</button>

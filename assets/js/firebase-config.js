@@ -1,17 +1,19 @@
 // Configurazione Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyBMMyrXGTm7-6jzRK2xQdp98EcJ6zxVgYI",
-    authDomain: "lega-dello-stretto.firebaseapp.com",
-    databaseURL: "https://lega-dello-stretto-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "lega-dello-stretto",
-    storageBucket: "lega-dello-stretto.firebasestorage.app",
-    messagingSenderId: "340615332224",
-    appId: "1:340615332224:web:6ae9b0c7ca1ac1b1068165"
+    apiKey: "AIzaSyB0CLFB0FxRLWvqW-5mwY2XLJ-RwNsbAq0",
+    authDomain: "legabattlegrounds.firebaseapp.com",
+    databaseURL: "https://legabattlegrounds-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "legabattlegrounds",
+    storageBucket: "legabattlegrounds.firebasestorage.app",
+    messagingSenderId: "972949103668",
+    appId: "1:972949103668:web:1e98b836268c94c7a81661",
+    measurementId: "G-HCVP5B0BL8"
 };
 
 // Inizializzazione Firebase
 let app;
 let database;
+let auth;
 
 if (typeof firebase !== 'undefined') {
     if (!firebase.apps.length) {
@@ -19,7 +21,12 @@ if (typeof firebase !== 'undefined') {
     } else {
         app = firebase.app();
     }
-    database = firebase.database();
+    if (typeof firebase.database === 'function') {
+        database = firebase.database();
+    }
+    if (typeof firebase.auth === 'function') {
+        auth = firebase.auth();
+    }
 } else {
     console.error("Firebase SDK non caricato!");
 }

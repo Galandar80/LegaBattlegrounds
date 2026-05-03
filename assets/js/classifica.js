@@ -1,6 +1,51 @@
 // Firebase configuration handled in firebase-config.js
 // database is already initialized in firebase-config.js
 let torneiData = {};
+const html = window.escapeHTML || (value => String(value ?? ''));
+
+function emptyRow(colspan, icon, title, copy) {
+    return `
+        <tr>
+            <td colspan="${colspan}" class="no-data">
+                <i class="${icon}"></i>
+                <span class="empty-title">${html(title)}</span>
+                <span class="empty-copy">${html(copy)}</span>
+            </td>
+        </tr>`;
+}
+
+function updateRankingPodium(sortedPlayers) {
+    const podium = document.getElementById('rankingPodium');
+    if (!podium) return;
+
+    const podiumOrder = [
+        { index: 1, rank: 2, className: 'podium-card-second' },
+        { index: 0, rank: 1, className: 'podium-card-first' },
+        { index: 2, rank: 3, className: 'podium-card-third' }
+    ];
+
+    podium.innerHTML = '';
+    podiumOrder.forEach(slot => {
+        const player = sortedPlayers[slot.index];
+        const card = document.createElement('article');
+        card.className = `podium-card ${slot.className}${player ? '' : ' podium-card-empty'}`;
+
+        const rank = document.createElement('div');
+        rank.className = 'podium-rank';
+        rank.textContent = slot.rank;
+
+        const name = document.createElement('div');
+        name.className = 'podium-name';
+        name.textContent = player ? player[0] : 'In attesa';
+
+        const points = document.createElement('div');
+        points.className = 'podium-points';
+        points.textContent = player ? `${player[1].total} MMR` : '0 MMR';
+
+        card.append(rank, name, points);
+        podium.appendChild(card);
+    });
+}
 
 // Toggle tema chiaro/scuro
 
@@ -21,24 +66,46 @@ function updateClassificaTorneo() {
 
         // Aggiungi il link al bracket Challonge se disponibile
         if (torneo.linkChallonge) {
+            const bracketUrl = window.safeURL ? window.safeURL(torneo.linkChallonge) : torneo.linkChallonge;
             linksContainer.innerHTML = `
-                <a href="${torneo.linkChallonge}" target="_blank" class="challonge-link">
+                <a href="${bracketUrl}" target="_blank" rel="noopener noreferrer" class="challonge-link">
                     <i class="fas fa-trophy"></i> Visualizza Bracket Challonge
                 </a>
             `;
         }
 
         const giocatori = Object.values(torneo.giocatori || {});
+        if (giocatori.length === 0) {
+            tableBody.innerHTML = emptyRow(3, 'fas fa-users', 'Classifica non ancora disponibile', 'I risultati appariranno qui appena il torneo avra giocatori registrati.');
+            return;
+        }
+
         giocatori.sort((a, b) => a.posizione - b.posizione)
             .forEach(giocatore => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${giocatore.posizione}°</td>
-                    <td class="player-name" onclick="showUserProfile(null, '${giocatore.nome}')">${giocatore.nome}</td>
-                    <td>${giocatore.punti}</td>
-                `;
+                const rank = parseInt(giocatore.posizione, 10) || 0;
+                if (rank > 0 && rank <= 3) row.classList.add(`rank-top-${rank}`);
+                const positionCell = document.createElement('td');
+                if (rank > 0) {
+                    const badge = document.createElement('span');
+                    badge.className = `rank-badge rank-${rank}`;
+                    badge.textContent = rank;
+                    positionCell.appendChild(badge);
+                    positionCell.appendChild(document.createTextNode(`${rank}°`));
+                } else {
+                    positionCell.textContent = '-';
+                }
+                const nameCell = document.createElement('td');
+                nameCell.className = 'player-name';
+                nameCell.textContent = giocatore.nome || 'Giocatore';
+                nameCell.addEventListener('click', () => showUserProfile(null, giocatore.nome || ''));
+                const pointsCell = document.createElement('td');
+                pointsCell.textContent = giocatore.punti ?? 0;
+                row.append(positionCell, nameCell, pointsCell);
                 tableBody.appendChild(row);
             });
+    } else {
+        tableBody.innerHTML = emptyRow(3, 'fas fa-trophy', 'Seleziona un torneo', 'Scegli una competizione dal menu per visualizzare ranking e rating.');
     }
 }
 
@@ -75,55 +142,122 @@ function updateStoricoGiocatori() {
     });
 
     // Crea una riga per ogni giocatore
-    Object.entries(giocatoriStorico).forEach(([nome, partecipazioni]) => {
+    const entries = Object.entries(giocatoriStorico);
+    if (entries.length === 0) {
+        container.innerHTML = emptyRow(2, 'fas fa-history', 'Nessuna partecipazione registrata', 'Lo storico si popolera automaticamente dopo i primi tornei.');
+        return;
+    }
+
+    entries.forEach(([nome, partecipazioni]) => {
         const row = document.createElement('tr');
 
         // Formatta le partecipazioni come solo posizioni
         const posizioni = partecipazioni.map(p => `${p.posizione}°`).join(' - ');
 
-        row.innerHTML = `
-            <td class="player-name" onclick="showUserProfile(null, '${nome}')">${nome}</td>
-            <td>${posizioni}</td>
-        `;
+        const nameCell = document.createElement('td');
+        nameCell.className = 'player-name';
+        nameCell.textContent = nome;
+        nameCell.addEventListener('click', () => showUserProfile(null, nome));
+        const positionsCell = document.createElement('td');
+        positionsCell.textContent = posizioni;
+        row.append(nameCell, positionsCell);
 
         container.appendChild(row);
     });
 }
 
-// Funzione per aggiornare i Punti Totali
-function updatePuntiTotali() {
+// Funzione per aggiornare i Punti Totali con colonne dinamiche per le Coppe
+async function updatePuntiTotali() {
     const container = document.getElementById('puntiTotaliBody');
+    const headerRow = document.getElementById('puntiTotaliHeader');
     container.innerHTML = '';
 
-    // Oggetto per memorizzare i punti totali per ogni giocatore
-    const giocatoriPunti = {};
+    // Recupera le coppe
+    const cupsSnapshot = await database.ref('cups').once('value');
+    const cups = cupsSnapshot.val() || {};
+    const cupsArray = Object.entries(cups);
 
-    // Raccolgo tutti i dati dai tornei
+    // Aggiorna l'header con le coppe
+    headerRow.innerHTML = '<th>Giocatore</th><th>Punti Totali</th>';
+    cupsArray.forEach(([id, cup]) => {
+        const th = document.createElement('th');
+        th.textContent = cup.name;
+        headerRow.appendChild(th);
+    });
+
+    // Oggetto per memorizzare i punti (totali e per coppa)
+    const giocatoriStats = {};
+
+    // Raccolgo dati dai tornei
     Object.values(torneiData).forEach(torneo => {
-        // Raccolgo tutti i giocatori di questo torneo
+        const cupId = torneo.cupId;
         Object.values(torneo.giocatori || {}).forEach(giocatore => {
             const nome = giocatore.nome;
             const punti = parseInt(giocatore.punti) || 0;
 
-            // Se è la prima volta che vedo questo giocatore, inizializzo il contatore
-            if (!giocatoriPunti[nome]) {
-                giocatoriPunti[nome] = 0;
+            if (!giocatoriStats[nome]) {
+                giocatoriStats[nome] = { total: 0, cups: {} };
             }
-
-            // Aggiungo i punti di questo torneo
-            giocatoriPunti[nome] += punti;
+            
+            giocatoriStats[nome].total += punti;
+            if (cupId) {
+                giocatoriStats[nome].cups[cupId] = (giocatoriStats[nome].cups[cupId] || 0) + punti;
+            }
         });
     });
 
-    // Creo una riga per ogni giocatore, ordinati per punti totali
-    Object.entries(giocatoriPunti)
-        .sort((a, b) => b[1] - a[1]) // Ordino per punti totali (dal più alto al più basso)
-        .forEach(([nome, punti]) => {
+    // Rendering righe
+    const sorted = Object.entries(giocatoriStats).sort((a, b) => b[1].total - a[1].total);
+    const maxPunti = sorted.length > 0 ? sorted[0][1].total : 1;
+
+    if (sorted.length === 0) {
+        updateRankingPodium([]);
+        container.innerHTML = emptyRow(2 + cupsArray.length, 'fas fa-star', 'Ranking generale in attesa', 'I punti totali verranno mostrati dopo la pubblicazione dei risultati.');
+        return;
+    }
+
+    updateRankingPodium(sorted);
+
+    sorted.forEach(([nome, stats], idx) => {
             const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="player-name" onclick="showUserProfile(null, '${nome}')">${nome}</td>
-                <td>${punti}</td>
-            `;
+            const rank = idx + 1;
+
+            // Medal badge for top 3
+            const medal = rank <= 3 ? String(rank) : '';
+            const medalClass = rank === 1 ? 'medal-gold' : rank === 2 ? 'medal-silver' : rank === 3 ? 'medal-bronze' : '';
+
+            if (rank <= 3) row.classList.add(`rank-top-${rank}`);
+
+            // Progress bar for total points
+            const pct = maxPunti > 0 ? Math.round((stats.total / maxPunti) * 100) : 0;
+            const barHtml = `
+                <div class="points-bar-wrap">
+                    <span class="points-val"><strong>${stats.total}</strong></span>
+                    <div class="points-bar-bg"><div class="points-bar-fill" style="width:${pct}%"></div></div>
+                </div>`;
+
+            const nameCell = document.createElement('td');
+            nameCell.className = 'player-name';
+            if (medal) {
+                const medalSpan = document.createElement('span');
+                medalSpan.className = `rank-medal ${medalClass}`;
+                medalSpan.textContent = medal;
+                nameCell.appendChild(medalSpan);
+            }
+            nameCell.appendChild(document.createTextNode(nome));
+            nameCell.addEventListener('click', () => showUserProfile(null, nome));
+
+            const pointsCell = document.createElement('td');
+            pointsCell.innerHTML = barHtml;
+            row.append(nameCell, pointsCell);
+
+            // Aggiungi colonne per ogni coppa
+            cupsArray.forEach(([id, _]) => {
+                const cupPunti = stats.cups[id] || 0;
+                const td = document.createElement('td');
+                td.textContent = cupPunti > 0 ? cupPunti : '-';
+                row.appendChild(td);
+            });
             container.appendChild(row);
         });
 }
@@ -199,11 +333,11 @@ function showUserProfile(giocatoreId, giocatoreNome) {
                 const data = torneo.data ? new Date(torneo.data).toLocaleDateString() : '-';
 
                 row.innerHTML = `
-                    <td>${torneo.torneoNome}</td>
-                    <td>${data}</td>
-                    <td>${torneo.posizione}°</td>
-                    <td>${torneo.punti}</td>
-                    <td>${torneo.partecipanti}</td>
+                    <td>${html(torneo.torneoNome)}</td>
+                    <td>${html(data)}</td>
+                    <td>${html(torneo.posizione)}°</td>
+                    <td>${html(torneo.punti)}</td>
+                    <td>${html(torneo.partecipanti)}</td>
                 `;
                 tbody.appendChild(row);
             });

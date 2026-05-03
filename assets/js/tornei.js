@@ -1,5 +1,16 @@
 // Firebase configuration handled in firebase-config.js
 // database is already initialized in firebase-config.js
+const html = window.escapeHTML || (value => String(value ?? ''));
+
+function renderTournamentEmpty(container, title = 'Nessun torneo programmato') {
+    container.innerHTML = `
+        <div class="premium-empty" style="grid-column: 1/-1;">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="empty-title">${html(title)}</div>
+            <div class="empty-copy">La prossima data verra pubblicata qui appena confermata. Nel frattempo puoi contattare il team per pre-iscrizioni e informazioni.</div>
+            <a href="contatti.html" class="btn btn-primary">Contatta il team</a>
+        </div>`;
+}
 
 
 
@@ -25,60 +36,7 @@ function loadUpcomingTournaments() {
     // Controlla se Firebase è disponibile
     if (!database) {
         console.error("Database Firebase non disponibile");
-        // Fallback ai dati statici già presenti nell'HTML
-        container.innerHTML = '';
-
-        // Ricrea le card statiche degli eventi
-        const torneiStatici = [
-            {
-                data: "22 Dicembre 2023",
-                nome: "Torneo Regionale Messina",
-                luogo: "Games Academy Messina",
-                formato: "Swiss + Top 8",
-                quota: "€20",
-                premi: "Montepremi €800 e premi esclusivi"
-            },
-            {
-                data: "15 Gennaio 2024",
-                nome: "Qualificazioni Reggio Calabria",
-                luogo: "Game Time, Reggio Calabria",
-                formato: "Swiss + Top 4",
-                quota: "€15",
-                premi: "Qualificazione al Championship regionale per i primi 4 classificati"
-            },
-            {
-                data: "5 Febbraio 2024",
-                nome: "Championship Messina",
-                luogo: "Centro Commerciale Messina",
-                formato: "Swiss + Top 8",
-                quota: "€25",
-                premi: "Montepremi €1500 e ospiti speciali"
-            }
-        ];
-
-        torneiStatici.forEach(torneo => {
-            const tournamentCard = document.createElement('div');
-            tournamentCard.className = 'tournament-card';
-            tournamentCard.innerHTML = `
-                <div class="tournament-date">
-                    <i class="far fa-calendar"></i> ${torneo.data}
-                </div>
-                <h4 class="tournament-title">${torneo.nome}</h4>
-                <div class="tournament-location">
-                    <i class="fas fa-map-marker-alt"></i> ${torneo.luogo}
-                </div>
-                <div class="tournament-details">
-                    <p><strong>Formato:</strong> ${torneo.formato}</p>
-                    <p><strong>Iscrizione:</strong> ${torneo.quota}</p>
-                    <p><strong>Premi:</strong> ${torneo.premi}</p>
-                </div>
-                <div class="tournament-action">
-                    <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
-                </div>
-            `;
-            container.appendChild(tournamentCard);
-        });
-
+        renderTournamentEmpty(container, 'Calendario in aggiornamento');
         return;
     }
 
@@ -90,11 +48,7 @@ function loadUpcomingTournaments() {
 
             // Se non ci sono eventi, mostra un messaggio
             if (eventiArray.length === 0) {
-                container.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-calendar-times"></i>
-                        <p>Nessun torneo programmato</p>
-                    </div>`;
+                renderTournamentEmpty(container);
                 return;
             }
 
@@ -118,11 +72,7 @@ function loadUpcomingTournaments() {
 
             // Se non ci sono eventi futuri, mostra un messaggio
             if (eventiFuturi.length === 0) {
-                container.innerHTML = `
-                    <div class="no-data">
-                        <i class="fas fa-calendar-times"></i>
-                        <p>Nessun torneo futuro programmato</p>
-                    </div>`;
+                renderTournamentEmpty(container, 'Nessun torneo futuro programmato');
                 return;
             }
 
@@ -143,14 +93,14 @@ function loadUpcomingTournaments() {
                     <div class="tournament-date">
                         <i class="far fa-calendar"></i> ${formattedData}
                     </div>
-                    <h4 class="tournament-title">${evento.nome}</h4>
+                    <h4 class="tournament-title">${html(evento.nome || 'Evento Battlegrounds League')}</h4>
                     <div class="tournament-location">
-                        <i class="fas fa-map-marker-alt"></i> ${evento.luogo || 'Luogo da definire'}
+                        <i class="fas fa-map-marker-alt"></i> ${html(evento.luogo || 'Luogo da definire')}
                     </div>
                     <div class="tournament-details">
-                        <p><strong>Formato:</strong> ${evento.formato || 'Swiss + Top 8'}</p>
-                        <p><strong>Iscrizione:</strong> ${evento.quota || '€15'}</p>
-                        <p><strong>Premi:</strong> ${evento.premi || 'Carte promo esclusive, tappetini di gioco ufficiali'}</p>
+                        <p><strong>Formato:</strong> ${html(evento.formato || 'Swiss + Top 8')}</p>
+                        <p><strong>Iscrizione:</strong> ${html(evento.quota || '€15')}</p>
+                        <p><strong>Premi:</strong> ${html(evento.premi || 'Carte promo esclusive, tappetini di gioco ufficiali')}</p>
                     </div>
                     <div class="tournament-action">
                         <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
@@ -162,59 +112,7 @@ function loadUpcomingTournaments() {
         })
         .catch(error => {
             console.error("Errore nel caricamento degli eventi:", error);
-            // In caso di errore, mostra i dati statici
-            container.innerHTML = '';
-
-            // Ricrea le card statiche degli eventi
-            const torneiStatici = [
-                {
-                    data: "22 Dicembre 2023",
-                    nome: "Torneo Regionale Messina",
-                    luogo: "Games Academy Messina",
-                    formato: "Swiss + Top 8",
-                    quota: "€20",
-                    premi: "Montepremi €800 e premi esclusivi"
-                },
-                {
-                    data: "15 Gennaio 2024",
-                    nome: "Qualificazioni Reggio Calabria",
-                    luogo: "Game Time, Reggio Calabria",
-                    formato: "Swiss + Top 4",
-                    quota: "€15",
-                    premi: "Qualificazione al Championship regionale per i primi 4 classificati"
-                },
-                {
-                    data: "5 Febbraio 2024",
-                    nome: "Championship Messina",
-                    luogo: "Centro Commerciale Messina",
-                    formato: "Swiss + Top 8",
-                    quota: "€25",
-                    premi: "Montepremi €1500 e ospiti speciali"
-                }
-            ];
-
-            torneiStatici.forEach(torneo => {
-                const tournamentCard = document.createElement('div');
-                tournamentCard.className = 'tournament-card';
-                tournamentCard.innerHTML = `
-                    <div class="tournament-date">
-                        <i class="far fa-calendar"></i> ${torneo.data}
-                    </div>
-                    <h4 class="tournament-title">${torneo.nome}</h4>
-                    <div class="tournament-location">
-                        <i class="fas fa-map-marker-alt"></i> ${torneo.luogo}
-                    </div>
-                    <div class="tournament-details">
-                        <p><strong>Formato:</strong> ${torneo.formato}</p>
-                        <p><strong>Iscrizione:</strong> ${torneo.quota}</p>
-                        <p><strong>Premi:</strong> ${torneo.premi}</p>
-                    </div>
-                    <div class="tournament-action">
-                        <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
-                    </div>
-                `;
-                container.appendChild(tournamentCard);
-            });
+            renderTournamentEmpty(container, 'Calendario non disponibile');
         });
 }
 

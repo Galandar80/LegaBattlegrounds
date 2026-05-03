@@ -4,141 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Contatta la Lega dello Stretto - La lega ufficiale di Messina">
-    <title>Contatti - Lega dello Stretto</title>
+    <meta name="description" content="Contatta la Battlegrounds League - La lega ufficiale di Messina">
+    <title>Contatti - Battlegrounds League</title>
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://galandar80.github.io/LegaDelloStretto/contatti.html">
-    <meta property="og:title" content="Lega dello Stretto - Contatti">
+    <meta property="og:title" content="Battlegrounds League - Contatti">
     <meta property="og:description"
-        content="Contatta la Lega dello Stretto per informazioni sui tornei, eventi e collaborazioni. Siamo a tua disposizione!">
-    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/onepiece-logo.webp">
+        content="Contatta la Battlegrounds League per informazioni sui tornei, eventi e collaborazioni. Siamo a tua disposizione!">
+    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/battlegrounds-league-emblem.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS personalizzato -->
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
 </head>
 
-<body>
+<body class="page-contact">
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <!-- Header -->
     <header class="main-header">
         <div class="container header-container">
-            <div class="logo">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo Lega dello Stretto" class="logo-img">
-                <h1>Lega dello Stretto</h1>
+            <div class="logo-container">
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
                     <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link">Eventi</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
-                    <li class="nav-item"><a href="contatti.html" class="nav-link active">Contatti</a></li>
-                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
-                            Admin</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
+                    <li class="nav-item"><a href="contatti.html" class="nav-link active" aria-current="page">Contatti</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
+    <main id="main-content">
     <!-- Hero Section per Contatti -->
-    <section class="hero contatti-hero" style="background: none; position: relative; overflow: hidden; height: 400px;">
-        <div class="hero-overlay"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)); z-index: 1;">
-        </div>
-        <div
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 0;">
-            <img src="assets/img/contatti.webp" alt="Contatti Banner"
-                style="width: 100%; height: 100%; object-fit: cover; opacity: 1;">
-        </div>
-        <div class="hero-content fade-in" style="position: relative; z-index: 2; text-align: center; max-width: 900px;">
-            <h2 class="hero-title"
-                style="font-size: 4rem; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); letter-spacing: 3px; margin-bottom: 1.5rem; font-weight: 800; text-transform: uppercase; color: #f9f6e5;">
-                Contatti</h2>
-            <p class="hero-subtitle"
-                style="font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); color: #f9f6e5;">Hai domande?
-                Contatta il team della Lega dello Stretto</p>
+    <section class="hero page-hero contatti-hero">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">Contatti</h1>
+            <p class="hero-subtitle">Hai domande? Contatta il team della Battlegrounds League</p>
         </div>
     </section>
 
     <!-- Main Contact Section -->
-    <section class="contact-page">
+    <section class="contact-page premium-page-section">
         <div class="container">
-            <div class="contact-grid">
-                <div class="contact-info-box">
-                    <h2 class="section-title">Informazioni di Contatto</h2>
-                    <p class="contact-description">
-                        Siamo sempre felici di rispondere alle tue domande, ricevere feedback o aiutarti a partecipare
-                        ai nostri eventi.
-                    </p>
-
-                    <div class="contact-details">
-                        <div class="contact-detail-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h3>Email</h3>
-                                <p><a href="mailto:redshiftg@gmail.com">redshiftg@gmail.com</a></p>
-                            </div>
-                        </div>
-
-                        <div class="contact-detail-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h3>Telefono</h3>
-                                <p><a href="tel:+393287241502">+39 328 724 1502</a></p>
-                            </div>
-                        </div>
-
-                        <div class="contact-detail-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h3>Indirizzo</h3>
-                                <p>Via Nicola Fabrizi 11, Messina</p>
-                            </div>
-                        </div>
-
-                        <div class="contact-detail-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h3>Orari</h3>
-                                <p>Mar-Dom: 17:00-01:00<br>Lun: Chiuso</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="social-links">
-                        <h3>Seguici sui Social</h3>
-                        <div class="social-icons">
-                            <a href="https://www.facebook.com/RedShiftGaming" class="social-icon" target="_blank"><i
-                                    class="fab fa-facebook-f"></i></a>
-                            <a href="https://www.instagram.com/redshift_gaming/" class="social-icon" target="_blank"><i
-                                    class="fab fa-instagram"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="contact-form-box">
+            <div class="contact-card premium-form-shell">
+                <div class="premium-form-inner">
                     <h2 class="section-title">Inviaci un Messaggio</h2>
+                    <p class="section-description">Hai domande o vuoi partecipare? Inviaci un messaggio!</p>
                     <form id="contactForm" class="contact-form" action="https://formspree.io/f/mzzrdrwe" method="POST">
+                        <!-- ... rest of the form ... -->
                         <!-- Campi di configurazione Formspree -->
-                        <input type="hidden" name="_subject" value="Nuovo messaggio dal sito Lega dello Stretto">
+                        <input type="hidden" name="_subject" value="Nuovo messaggio dal sito Battlegrounds League">
                         <input type="hidden" name="_next" value="contatti.html?success=true">
 
                         <div class="form-group">
@@ -170,7 +97,7 @@
                             <label class="checkbox-container">
                                 <input type="checkbox" name="privacy_accepted" required>
                                 <span class="checkmark"></span>
-                                <span class="privacy-text">Ho letto e accetto la <a href="#">Privacy Policy</a></span>
+                                <span class="privacy-text">Ho letto e accetto la <a href="contatti.html#privacy-note">Privacy Policy</a></span>
                             </label>
                         </div>
 
@@ -178,18 +105,16 @@
                     </form>
 
                     <!-- Messaggio di conferma nascosto inizialmente -->
-                    <div id="confirmationMessage"
-                        style="display: none; margin-top: 2rem; padding: 1.5rem; background-color: var(--success-color, #28a745); color: white; border-radius: 8px; text-align: center;">
-                        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem;">Messaggio Inviato!</h3>
+                    <div id="confirmationMessage" class="premium-message premium-message-success">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Messaggio Inviato!</h3>
                         <p>Grazie per averci contattato. Ti risponderemo il prima possibile.</p>
                     </div>
 
                     <!-- Messaggio di errore nascosto inizialmente -->
-                    <div id="errorMessage"
-                        style="display: none; margin-top: 2rem; padding: 1.5rem; background-color: var(--danger-color, #dc3545); color: white; border-radius: 8px; text-align: center;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem;">Errore di invio</h3>
+                    <div id="errorMessage" class="premium-message premium-message-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Errore di invio</h3>
                         <p>Si è verificato un errore durante l'invio del messaggio. Per favore riprova più tardi o
                             contattaci direttamente via email o telefono.</p>
                     </div>
@@ -198,86 +123,14 @@
         </div>
     </section>
 
-    <!-- Map Section -->
-    <section class="map-section">
-        <div class="container">
-            <h2 class="section-title">Dove Trovarci</h2>
-            <div class="map-container">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3146.6731087858893!2d15.553939415311156!3d38.19306979584946!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13145093972f95e1%3A0x15a9f74cc6aecf69!2sVia%20Nicola%20Fabrizi%2C%2011%2C%2098122%20Messina%20ME!5e0!3m2!1sit!2sit!4v1697234568123!5m2!1sit!2sit"
-                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-        </div>
-    </section>
+    <p id="privacy-note" class="premium-privacy-note">
+        I dati inviati vengono usati solo per rispondere alla richiesta e gestire la partecipazione agli eventi.
+    </p>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-        <div class="container">
-            <h2 class="section-title">Domande Frequenti</h2>
-            <div class="faq-container">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Come posso partecipare ai tornei?</h3>
-                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Per partecipare ai nostri tornei, puoi iscriverti direttamente presso la nostra sede oppure
-                            contattarci via email o telefono. Consulta la sezione eventi per trovare i dettagli
-                            specifici di ogni torneo.</p>
-                    </div>
-                </div>
+<!-- Map Section rimosso -->
 
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Quale formato di gioco utilizzate?</h3>
-                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>La maggior parte dei nostri tornei utilizza il formato Swiss seguito da Top 8/4 per le fasi
-                            finali. Ogni evento specifico può avere regole differenti, quindi controlla sempre il
-                            regolamento del singolo torneo.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Come funziona il sistema di qualificazione?</h3>
-                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>I giocatori accumulano punti partecipando ai tornei della Lega. I punti variano in base al
-                            piazzamento e all'importanza dell'evento. Al termine della stagione, i giocatori con più
-                            punti si qualificano per il Championship finale.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Posso portare accompagnatori ai tornei?</h3>
-                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Sì, i nostri eventi sono aperti al pubblico. Gli accompagnatori sono benvenuti, ma ricorda
-                            che lo spazio potrebbe essere limitato in alcuni locali. Per i tornei più importanti,
-                            verifica sempre le disposizioni specifiche.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Come posso diventare sponsor della Lega?</h3>
-                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Se sei interessato a sponsorizzare i nostri eventi o collaborare con la Lega dello Stretto,
-                            contattaci via email all'indirizzo sponsor@legadellostretto.it. Saremo felici di discutere
-                            le diverse opportunità di partnership.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- FAQ rimossa -->
+    </main>
 
     <footer class="main-footer">
         <div class="include-footer"></div>
@@ -286,3 +139,4 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/contatti.js"></script>
 </body>
+</html>

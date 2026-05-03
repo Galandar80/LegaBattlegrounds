@@ -4,143 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tornei ufficiali della Lega dello Stretto">
-    <title>Tornei - Lega dello Stretto</title>
+    <meta name="description" content="Tornei ufficiali della Battlegrounds League">
+    <title>Tornei - Battlegrounds League</title>
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://galandar80.github.io/LegaDelloStretto/tornei.html">
-    <meta property="og:title" content="Lega dello Stretto - Tornei">
+    <meta property="og:title" content="Battlegrounds League - Tornei">
     <meta property="og:description"
-        content="Scopri i prossimi tornei della Lega dello Stretto e partecipa alle competizioni ufficiali di One Piece Card Game.">
-    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/onepiece-logo.webp">
+        content="Scopri i prossimi tornei della Battlegrounds League e partecipa alle competizioni ufficiali di Hearthstone Battlegrounds.">
+    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/battlegrounds-league-emblem.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS personalizzato -->
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
-<body>
+<body class="page-tornei">
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <!-- Header -->
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="logo-img">
-                <span class="site-title">Lega dello Stretto</span>
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="tornei.html" class="nav-link active">Tornei</a></li>
+                    <li class="nav-item"><a href="tornei.html" class="nav-link active" aria-current="page">Tornei</a></li>
                     <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link">Eventi</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
-                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
-                            Admin</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
                 </ul>
             </nav>
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
     <!-- Hero Section per Tornei -->
-    <section class="hero eventi-hero" style="background: none; position: relative; overflow: hidden; height: 400px;">
-        <div class="hero-overlay"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)); z-index: 1;">
-        </div>
-        <div
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; z-index: 0;">
-            <img src="assets/img/tornei.webp" alt="Tornei Banner"
-                style="width: 100%; height: 100%; object-fit: cover; opacity: 1;">
-        </div>
-        <div class="hero-content fade-in" style="position: relative; z-index: 2; text-align: center; max-width: 900px;">
-            <h1 class="hero-title"
-                style="font-size: 4rem; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); letter-spacing: 3px; margin-bottom: 1.5rem; font-weight: 800; text-transform: uppercase; color: #f9f6e5;">
-                Tornei</h1>
-            <p class="hero-subtitle"
-                style="font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); color: #f9f6e5;">Competizioni
-                ufficiali della Lega dello Stretto</p>
+    <section class="hero page-hero eventi-hero">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">Tornei</h1>
+            <p class="hero-subtitle">Competizioni ufficiali della Battlegrounds League</p>
         </div>
     </section>
 
     <!-- Contenuto principale -->
     <main class="container">
         <!-- Intro Tornei -->
-        <section class="section-container fade-in">
+        <section class="section-container fade-in premium-tournament-intro">
             <h2 class="section-title"><i class="fas fa-trophy"></i> Competizioni</h2>
-            <p class="section-description">
-                Qui puoi visualizzare i nostri tornei ospitati su Challonge. Partecipa e segui l'andamento delle
-                competizioni in tempo reale!
-                I tornei della Lega dello Stretto si tengono mensilmente e contribuiscono alla classifica generale.
-            </p>
+            <div class="premium-copy-grid">
+                <p class="section-description">
+                    Qui puoi visualizzare i tornei ospitati su Challonge, seguire l'andamento delle competizioni e
+                    prepararti ai prossimi eventi della Battlegrounds League.
+                </p>
+                <div class="premium-mini-badges" aria-label="Caratteristiche tornei">
+                    <span><i class="fas fa-calendar-check"></i> Eventi mensili</span>
+                    <span><i class="fas fa-ranking-star"></i> Rating stagionale</span>
+                    <span><i class="fas fa-gem"></i> Premi e coppe</span>
+                </div>
+            </div>
 
             <!-- Prossimi Tornei -->
             <div class="upcoming-tournaments">
                 <h3><i class="fas fa-calendar-alt"></i> Prossimi Tornei</h3>
                 <div id="nextTournaments" class="upcoming-tournaments-grid">
-                    <div class="tournament-card">
-                        <div class="tournament-date">
-                            <i class="far fa-calendar"></i> 22 Dicembre 2023
-                        </div>
-                        <h4 class="tournament-title">Torneo Regionale Messina</h4>
-                        <div class="tournament-location">
-                            <i class="fas fa-map-marker-alt"></i> Games Academy Messina
-                        </div>
-                        <div class="tournament-details">
-                            <p><strong>Formato:</strong> Swiss + Top 8</p>
-                            <p><strong>Iscrizione:</strong> €20</p>
-                            <p><strong>Premi:</strong> Montepremi €800 e premi esclusivi</p>
-                        </div>
-                        <div class="tournament-action">
-                            <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
-                        </div>
-                    </div>
-
-                    <div class="tournament-card">
-                        <div class="tournament-date">
-                            <i class="far fa-calendar"></i> 15 Gennaio 2024
-                        </div>
-                        <h4 class="tournament-title">Qualificazioni Reggio Calabria</h4>
-                        <div class="tournament-location">
-                            <i class="fas fa-map-marker-alt"></i> Game Time, Reggio Calabria
-                        </div>
-                        <div class="tournament-details">
-                            <p><strong>Formato:</strong> Swiss + Top 4</p>
-                            <p><strong>Iscrizione:</strong> €15</p>
-                            <p><strong>Premi:</strong> Qualificazione al Championship regionale per i primi 4
-                                classificati</p>
-                        </div>
-                        <div class="tournament-action">
-                            <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
-                        </div>
-                    </div>
-
-                    <div class="tournament-card">
-                        <div class="tournament-date">
-                            <i class="far fa-calendar"></i> 5 Febbraio 2024
-                        </div>
-                        <h4 class="tournament-title">Championship Messina</h4>
-                        <div class="tournament-location">
-                            <i class="fas fa-map-marker-alt"></i> Centro Commerciale Messina
-                        </div>
-                        <div class="tournament-details">
-                            <p><strong>Formato:</strong> Swiss + Top 8</p>
-                            <p><strong>Iscrizione:</strong> €25</p>
-                            <p><strong>Premi:</strong> Montepremi €1500 e ospiti speciali</p>
-                        </div>
-                        <div class="tournament-action">
-                            <a href="eventi.html" class="btn btn-primary">Dettagli e Iscrizione</a>
-                        </div>
+                    <div class="premium-empty" style="grid-column: 1/-1;">
+                        <i class="fas fa-scroll"></i>
+                        <div class="empty-title">Calendario in preparazione</div>
+                        <div class="empty-copy">I prossimi eventi verranno pubblicati qui con data, formato, premi e iscrizione.</div>
+                        <a href="contatti.html" class="btn btn-primary">Richiedi informazioni</a>
                     </div>
                 </div>
             </div>
@@ -186,9 +128,9 @@
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="rule-content">
-                        <h3>Formato Standard</h3>
-                        <p>I nostri tornei seguono il formato Standard ufficiale di One Piece TCG. Assicurati di avere
-                            un mazzo conforme al formato corrente.</p>
+                        <h3>Battlegrounds Standard</h3>
+                        <p>I nostri tornei seguono il formato Standard ufficiale di Hearthstone Battlegrounds. Assicurati di conoscere
+                            le ultime patch e rotazioni dei minion.</p>
                     </div>
                 </div>
 
@@ -208,8 +150,8 @@
                         <i class="fas fa-award"></i>
                     </div>
                     <div class="rule-content">
-                        <h3>Sistema Punti</h3>
-                        <p>Ogni torneo assegna punti per la classifica generale. I punti accumulati ti permettono di
+                        <h3>Sistema Rating</h3>
+                        <p>Ogni torneo assegna rating per la classifica generale (Rating MMR). Il rating accumulato ti permette di
                             qualificarti per eventi speciali e di riscattare premi esclusivi.</p>
                     </div>
                 </div>
@@ -240,6 +182,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/tornei.js"></script>
+    <script src="assets/js/visual-fx.js"></script>
 </body>
 
 </html>

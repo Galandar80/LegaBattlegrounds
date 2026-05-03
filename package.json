@@ -2,7 +2,8 @@
   "name": "leggedellostretto",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "check:js": "node --check assets/js/app-core.js && node --check assets/js/utils.js && node --check assets/js/firebase-config.js && node --check assets/js/home.js && node --check assets/js/classifica.js && node --check assets/js/tornei.js && node --check assets/js/eventi.js && node --check assets/js/admin-auth.js"
   },
   "jest": {
     "testEnvironment": "jsdom"

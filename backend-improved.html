@@ -4,19 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Lega dello Stretto</title>
+    <title>Admin - Battlegrounds League</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
     <link rel="stylesheet" href="assets/css/dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script>
-        // Auth Check
-        if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
-            window.location.href = 'admin-login.html';
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --hs-gold: #f3ce34;
         }
-    </script>
+        .backend-container { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar { width: 280px; background: #0d0617; border-right: 2px solid var(--hs-gold); padding: 20px; }
+        .main-content { flex-grow: 1; padding: 30px; background: #1a0f2e; }
+        .section { background: #2d1b4d; border: 1px solid rgba(243, 206, 52, 0.3); border-radius: 8px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        h2 { color: var(--hs-gold); font-family: var(--font-primary); border-bottom: 2px solid var(--hs-gold); padding-bottom: 15px; margin-bottom: 25px; }
+        .sidebar-menu { list-style: none; padding: 0; }
+        .sidebar-menu li { margin-bottom: 5px; }
+        .sidebar-menu a { display: block; padding: 12px 15px; color: #ccc; text-decoration: none; border-radius: 6px; transition: all 0.2s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--hs-purple); color: var(--hs-gold); }
+        .flex-group { display: flex; gap: 10px; align-items: center; }
+        input, select, textarea { background: #1a0a2e; border: 1px solid var(--hs-gold); color: #fff; padding: 12px; border-radius: 4px; }
+        button { background: var(--hs-gold); color: #000; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { filter: brightness(1.1); }
+        .event-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(243, 206, 52, 0.2); padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/admin-auth.js"></script>
+    <script>AdminAuth.requireAuth();</script>
 </head>
 
 <body>
@@ -26,7 +46,7 @@
             <span>Amministrazione Tornei</span>
         </div>
         <div class="flex-group">
-            <a href="dashboard.html" class="theme-toggle" title="Vai alla dashboard">
+            <a href="admin-dashboard.html" class="theme-toggle" title="Vai alla dashboard">
                 <i class="fas fa-chart-line"></i>
             </a>
             <a href="frontend.html" class="theme-toggle" title="Vai al frontend">
@@ -44,10 +64,13 @@
             <div class="sidebar-section">
                 <h3><i class="fas fa-plus-circle"></i> Nuovo Torneo</h3>
                 <div class="flex-group" style="flex-direction: column;">
-                    <input type="text" id="nuovoTorneo" placeholder="Nome torneo" style="width: 100%">
-                    <input type="text" id="tipoTorneo" placeholder="Tipo torneo (opzionale)" style="width: 100%">
+                    <input type="text" id="nuovoTorneo" placeholder="Nome torneo (es. Tavern Brawl #1)" style="width: 100%">
+                    <input type="text" id="tipoTorneo" placeholder="Tipo torneo (es. Battlegrounds)" style="width: 100%">
                     <input type="date" id="dataTorneo" style="width: 100%">
                     <input type="url" id="linkChallonge" placeholder="Link Challonge (opzionale)" style="width: 100%">
+                    <select id="nuovoTorneoCoppa" style="width: 100%">
+                        <option value="">Nessuna Coppa</option>
+                    </select>
                     <button id="btnCreaTorneo" style="width: 100%"><i class="fas fa-save"></i> Crea Torneo</button>
                 </div>
             </div>
@@ -70,8 +93,10 @@
                     <li><a href="#" class="active" id="menuTornei"><i class="fas fa-trophy"></i> Tornei</a></li>
                     <li><a href="#" id="menuStatistiche"><i class="fas fa-chart-bar"></i> Statistiche</a></li>
                     <li><a href="#" id="menuEventi"><i class="fas fa-calendar-alt"></i> Eventi</a></li>
-                    <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="frontend.html"><i class="fas fa-home"></i> Frontend</a></li>
+                    <li><a href="#" id="menuCoppe"><i class="fas fa-trophy"></i> Gestione Coppe</a></li>
+                    <li><a href="#" id="menuHOF"><i class="fas fa-award"></i> Hall of Fame</a></li>
+                    <li><a href="admin-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Frontend</a></li>
                 </ul>
             </div>
         </div>
@@ -99,11 +124,11 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="statGiocatoriTotali">0</div>
-                        <div class="stat-label">Giocatori</div>
+                        <div class="stat-label">Eroi / Giocatori</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="statPuntiTotali">0</div>
-                        <div class="stat-label">Punti</div>
+                        <div class="stat-label">Rating (MMR)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="statUltimoTorneo">-</div>
@@ -118,7 +143,7 @@
                             <th>Pos.</th>
                             <th>Giocatore</th>
                             <th>Tornei</th>
-                            <th>Punti</th>
+                            <th>Rating</th>
                             <th>Media</th>
                         </tr>
                     </thead>
@@ -187,10 +212,47 @@
                             <input type="url" id="editLinkChallonge" placeholder="https://challonge.com/it/..."
                                 style="width: 100%">
                         </div>
+                        <div>
+                            <label for="editTorneoCoppa">Coppa Associata:</label>
+                            <select id="editTorneoCoppa" style="width: 100%">
+                                <option value="">Nessuna Coppa</option>
+                            </select>
+                        </div>
                         <button id="btnSalvaImpostazioni"><i class="fas fa-save"></i> Salva Modifiche</button>
                         <button id="btnEliminaTorneo" style="background: #dc3545"><i class="fas fa-trash"></i> Elimina
                             Torneo</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Sezione gestione coppe -->
+            <div class="section" id="sezioneCoppe" style="display: none;">
+                <h2><i class="fas fa-trophy"></i> Gestione Coppe</h2>
+                <div class="flex-group">
+                    <input type="text" id="nuovaCoppaNome" placeholder="Nome della Coppa (es. Coppa Murloc)" style="flex-grow: 1">
+                    <button id="btnCreaCoppa"><i class="fas fa-plus"></i> Crea Coppa</button>
+                </div>
+                <div id="coppeList" style="margin-top: 20px;">
+                    <!-- Lista coppe caricata via JS -->
+                </div>
+            </div>
+
+            <!-- Sezione gestione Hall of Fame -->
+            <div class="section" id="sezioneHOF" style="display: none;">
+                <h2><i class="fas fa-award"></i> Gestione Hall of Fame</h2>
+                <div class="sidebar-section">
+                    <h3>Aggiungi Vincitore</h3>
+                    <div class="flex-group" style="flex-direction: column; gap: 10px;">
+                        <input type="text" id="hofVincitoreNome" placeholder="Nome Vincitore" style="width: 100%">
+                        <select id="hofCoppaVinta" style="width: 100%">
+                            <option value="">Seleziona Coppa</option>
+                        </select>
+                        <input type="url" id="hofImmagineUrl" placeholder="URL Immagine Vincitore" style="width: 100%">
+                        <button id="btnSalvaHOF"><i class="fas fa-save"></i> Salva Vincitore</button>
+                    </div>
+                </div>
+                <div id="hofList" style="margin-top: 20px;">
+                    <!-- Lista HOF caricata via JS -->
                 </div>
             </div>
 
@@ -214,7 +276,7 @@
                     <h3>Aggiungi Nuovo Evento</h3>
                     <div class="form-group">
                         <label for="eventoNome">Nome Evento:</label>
-                        <input type="text" id="eventoNome" placeholder="Torneo Legge dello Stretto">
+                        <input type="text" id="eventoNome" placeholder="Torneo Battlegrounds Tavern">
                     </div>
                     <div class="form-group">
                         <label for="eventoData">Data:</label>
@@ -280,7 +342,6 @@
         <div class="include-footer"></div>
     </footer>
 
-    <script src="assets/js/firebase-config.js"></script>
     <script>
         // Configurazione Firebase è gestita in firebase-config.js
         // database è già inizializzato globalmente
@@ -597,6 +658,8 @@
                 return;
             }
 
+            const cupId = document.getElementById('nuovoTorneoCoppa').value;
+
             const nuovoTorneo = {
                 nome: nome,
                 giocatori: {},
@@ -606,6 +669,7 @@
             if (tipo) nuovoTorneo.tipo = tipo;
             if (data) nuovoTorneo.dataInizio = data;
             if (linkChallonge) nuovoTorneo.linkChallonge = linkChallonge;
+            if (cupId) nuovoTorneo.cupId = cupId;
 
             database.ref('tornei').push(nuovoTorneo)
                 .then(() => {
@@ -613,6 +677,7 @@
                     document.getElementById('tipoTorneo').value = '';
                     document.getElementById('dataTorneo').value = '';
                     document.getElementById('linkChallonge').value = '';
+                    document.getElementById('nuovoTorneoCoppa').value = '';
                     showAlert(`Torneo "${nome}" creato con successo!`);
                     caricaTornei();
                 })
@@ -644,6 +709,7 @@
             document.getElementById('editTipoTorneo').value = torneo.tipo || '';
             document.getElementById('editDataTorneo').value = torneo.dataInizio || '';
             document.getElementById('editLinkChallonge').value = torneo.linkChallonge || '';
+            document.getElementById('editTorneoCoppa').value = torneo.cupId || '';
 
             // Attiva il tab giocatori
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -711,7 +777,7 @@
                                         <input type="checkbox" id="qualificato-${giocatoreId}" 
                                             ${giocatore.qualificato ? 'checked' : ''}>
                                     </div>
-                                    <div class="giocatore-stat-label">OP</div>
+                                    <div class="giocatore-stat-label">HS</div>
                                 </div>
                             </div>
                             <div class="flex-group" style="margin-top: 10px;">

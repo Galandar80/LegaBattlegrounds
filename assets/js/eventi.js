@@ -1,4 +1,7 @@
 // Firebase configuration handled in firebase-config.js
+const html = window.escapeHTML || (value => String(value ?? ''));
+const url = window.safeURL || ((value, fallback = '#') => value || fallback);
+
 if (typeof firebase !== 'undefined') {
     // database is already initialized in firebase-config.js
 
@@ -122,26 +125,26 @@ function caricaEventi() {
                     }
 
                     // Immagine predefinita se non specificata
-                    const immagineEvento = evento.immagine || "https://i.imgur.com/Y2WXnK8.jpg";
+                    const immagineEvento = url(evento.immagine, "https://i.imgur.com/Y2WXnK8.jpg");
 
                     const eventCard = document.createElement('div');
                     eventCard.className = 'event-card';
                     eventCard.innerHTML = `
-                        <img src="${immagineEvento}" alt="${evento.nome}" class="event-img">
+                        <img src="${immagineEvento}" alt="${html(evento.nome || 'Evento')}" class="event-img">
                         <div class="event-info">
-                            <h3 class="event-title">${evento.nome}</h3>
+                            <h3 class="event-title">${html(evento.nome || 'Evento Battlegrounds League')}</h3>
                             <p class="event-date"><i class="far fa-calendar-alt"></i> ${formattedData} ${countdownText}</p>
-                            <p class="event-time"><i class="far fa-clock"></i> Inizio: ${evento.orario || 'Da definire'}</p>
-                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${evento.luogo || 'Luogo da definire'}</p>
-                            <p class="event-description">${evento.descrizione || 'Vieni a partecipare a questo evento della Lega dello Stretto!'}</p>
+                            <p class="event-time"><i class="far fa-clock"></i> Inizio: ${html(evento.orario || 'Da definire')}</p>
+                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${html(evento.luogo || 'Luogo da definire')}</p>
+                            <p class="event-description">${html(evento.descrizione || 'Vieni a partecipare a questo evento della Battlegrounds League!')}</p>
                             <div class="event-details">
-                                <p><strong>Formato:</strong> ${evento.formato || 'Swiss + Top 8'}</p>
-                                <p><strong>Quota Iscrizione:</strong> ${evento.quota || '€15'}</p>
-                                <p><strong>Premi:</strong> ${evento.premi || 'Carte promo esclusive, tappetini di gioco ufficiali'}</p>
+                                <p><strong>Formato:</strong> ${html(evento.formato || 'Swiss + Top 8')}</p>
+                                <p><strong>Quota Iscrizione:</strong> ${html(evento.quota || '€15')}</p>
+                                <p><strong>Premi:</strong> ${html(evento.premi || 'Carte promo esclusive, tappetini di gioco ufficiali')}</p>
                                 <p><strong>Stato Iscrizioni:</strong> <span class="${evento.iscrizioneAperta ? 'iscrizione-aperta' : 'iscrizione-chiusa'}">${evento.iscrizioneAperta ? 'Aperte' : 'Chiuse'}</span></p>
-                                <p><strong>Modalità Iscrizione:</strong> ${evento.modalitaIscrizione || 'Compila il modulo online'}</p>
+                                <p><strong>Modalità Iscrizione:</strong> ${html(evento.modalitaIscrizione || 'Compila il modulo online')}</p>
                             </div>
-                            <a href="https://docs.google.com/forms/d/e/1FAIpQLScAxwNm6If2sCzhepZ-sV7tMtqh6wZ3SrZnubUI47ph3Oe4Jg/viewform?usp=dialog" target="_blank" class="event-link btn ${evento.iscrizioneAperta ? 'btn-primary' : 'btn-secondary'}">${evento.iscrizioneAperta ? 'Iscriviti' : 'Iscrizioni Chiuse'}</a>
+                            <a href="https://docs.google.com/forms/d/e/1FAIpQLScAxwNm6If2sCzhepZ-sV7tMtqh6wZ3SrZnubUI47ph3Oe4Jg/viewform?usp=dialog" target="_blank" rel="noopener noreferrer" class="event-link btn ${evento.iscrizioneAperta ? 'btn-primary' : 'btn-secondary'}">${evento.iscrizioneAperta ? 'Iscriviti' : 'Iscrizioni Chiuse'}</a>
                         </div>
                     `;
 
@@ -166,23 +169,23 @@ function caricaEventi() {
                     });
 
                     // Immagine predefinita se non specificata
-                    const immagineEvento = evento.immagine || "https://i.imgur.com/JtBPMsK.jpg";
+                    const immagineEvento = url(evento.immagine, "https://i.imgur.com/JtBPMsK.jpg");
 
                     const eventCard = document.createElement('div');
                     eventCard.className = 'event-card evento-passato';
                     eventCard.innerHTML = `
-                        <img src="${immagineEvento}" alt="${evento.nome}" class="event-img">
+                        <img src="${immagineEvento}" alt="${html(evento.nome || 'Evento')}" class="event-img">
                         <div class="event-info">
-                            <h3 class="event-title">${evento.nome}</h3>
+                            <h3 class="event-title">${html(evento.nome || 'Evento Battlegrounds League')}</h3>
                             <p class="event-date"><i class="far fa-calendar-alt"></i> ${formattedData}</p>
-                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${evento.luogo || 'Luogo non specificato'}</p>
+                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${html(evento.luogo || 'Luogo non specificato')}</p>
                             <div class="event-results">
                                 <h4>Risultati:</h4>
                                 <ol class="winners-list">
                                     ${evento.risultati ? generaListaVincitori(evento.risultati) : '<li>Risultati non disponibili</li>'}
                                 </ol>
                             </div>
-                            ${evento.galleria ? `<a href="${evento.galleria}" target="_blank" class="event-link btn btn-secondary">Galleria Foto</a>` : ''}
+                            ${evento.galleria ? `<a href="${url(evento.galleria)}" target="_blank" rel="noopener noreferrer" class="event-link btn btn-secondary">Galleria Foto</a>` : ''}
                         </div>
                     `;
 
@@ -211,5 +214,5 @@ function caricaEventi() {
 function generaListaVincitori(risultati) {
     if (!risultati || !Array.isArray(risultati)) return '<li>Risultati non disponibili</li>';
 
-    return risultati.map(vincitore => `<li>${vincitore}</li>`).join('');
+    return risultati.map(vincitore => `<li>${html(vincitore)}</li>`).join('');
 }

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hall of Fame della Battlegrounds League - I campioni leggendari">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Battlegrounds League - Hall Of Fame">
+    <meta property="og:description" content="Celebra i campioni leggendari della Battlegrounds League.">
+    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/battlegrounds-league-emblem.png">
+    <title>Hall of Fame - Battlegrounds League</title>
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="page-hall">
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo-container">
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
+                    <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
+                    <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link active" aria-current="page">Hall Of Fame</a></li>
+                    <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
+                    <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i> Admin</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content">
+    <section class="hero page-hero hof-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Hall Of Fame</h1>
+            <p class="hero-subtitle">I campioni leggendari della Battlegrounds League</p>
+        </div>
+    </section>
+
+    <section class="container premium-page-section">
+        <div id="hofGrid" class="hof-grid">
+            <div class="premium-loading" style="grid-column: 1/-1;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Caricamento campioni...</p>
+            </div>
+        </div>
+    </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="include-footer"></div>
+    </footer>
+
+    <script src="assets/js/utils.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script>
+        const grid = document.getElementById('hofGrid');
+        const html = window.escapeHTML || (value => String(value ?? ''));
+        const url = window.safeURL || ((value, fallback) => value || fallback);
+        let hallResolved = false;
+
+        function renderHallEmpty(title = 'La Hall Of Fame attende il primo campione', copy = 'Quando una coppa verra assegnata, il vincitore apparira qui con una card celebrativa dedicata.') {
+            if (!grid) return;
+            grid.innerHTML = '';
+            grid.innerHTML = `
+                <div class="premium-empty premium-hof-empty" style="grid-column: 1/-1;">
+                    <i class="fas fa-crown"></i>
+                    <div class="empty-title">${html(title)}</div>
+                    <div class="empty-copy">${html(copy)}</div>
+                    <a href="classifica.html" class="btn btn-secondary">Guarda il ranking</a>
+                </div>`;
+        }
+
+        setTimeout(() => {
+            if (!hallResolved) {
+                renderHallEmpty('Hall Of Fame in aggiornamento', 'I campioni verranno mostrati qui appena i dati saranno disponibili.');
+            }
+        }, 2500);
+
+        database.ref('hallOfFame').on('value', (snapshot) => {
+            hallResolved = true;
+            const hofs = snapshot.val() || {};
+            const hofArray = Object.entries(hofs);
+            
+            if (hofArray.length === 0) {
+                renderHallEmpty();
+                return;
+            }
+            
+            grid.innerHTML = '';
+            hofArray.forEach(([id, hof]) => {
+                const card = document.createElement('div');
+                card.className = 'hof-card';
+                card.innerHTML = `
+                    <div class=\"hof-badge\">Campione</div>
+                    <img src=\"${url(hof.imageUrl, 'assets/img/battlegrounds-league-emblem.png')}\" alt=\"${html(hof.nome || 'Campione')}\" class=\"hof-winner-img\">
+                    <div class=\"hof-winner-name\">${html(hof.nome || 'Campione')}</div>
+                    <div class=\"hof-cup-name\">${html(hof.cupName || 'Battlegrounds League')}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }, () => {
+            hallResolved = true;
+            renderHallEmpty('Hall Of Fame non disponibile', 'Non riesco a leggere i dati in questo momento. La sezione resta pronta per i prossimi campioni.');
+        });
+    </script>
+</body>
+</html>

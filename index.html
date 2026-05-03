@@ -4,40 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Lega dello Stretto - La lega ufficiale di Messina">
-    <title>Lega dello Stretto - La Lega Ufficiale</title>
+    <meta name="description" content="Battlegrounds League - La lega di Messina">
+    <title>Hearthstone Battlegrounds League - Messina</title>
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://galandar80.github.io/LegaDelloStretto/index.html">
-    <meta property="og:title" content="Lega dello Stretto - Home">
-    <meta property="og:description" content="La prima lega ufficiale di One Piece Card Game di Messina e Reggio Calabria. Partecipa ai tornei, scala la classifica e vinci premi esclusivi!">
-    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/onepiece-logo.webp">
+    <meta property="og:title" content="Hearthstone Battlegrounds League - Home">
+    <meta property="og:description" content="La prima lega di Hearthstone Battlegrounds. Partecipa ai tornei, scala il ranking e vinci premi esclusivi!">
+    <meta property="og:image" content="https://galandar80.github.io/LegaDelloStretto/assets/img/battlegrounds-league-emblem.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS personalizzato -->
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <link rel="icon" href="assets/img/battlegrounds-league-emblem.png" type="image/png">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Vai al contenuto</a>
     <!-- Header -->
     <header class="main-header">
         <div class="container header-container">
             <div class="logo-container">
-                <img src="assets/img/onepiece-logo.webp" alt="Logo One Piece" class="logo-img">
-                <span class="site-title">Lega dello Stretto</span>
+                <img src="assets/img/battlegrounds-league-emblem.png" alt="Logo Battlegrounds League" class="logo-img" loading="lazy">
+                <span class="site-title">Battlegrounds League</span>
             </div>
             <nav class="main-nav" id="mainNav">
                 <ul class="nav-list">
-                    <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
+                    <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Home</a></li>
                     <li class="nav-item"><a href="tornei.html" class="nav-link">Tornei</a></li>
                     <li class="nav-item"><a href="classifica.html" class="nav-link">Classifiche</a></li>
-                    <li class="nav-item"><a href="eventi.html" class="nav-link">Eventi</a></li>
                     <li class="nav-item"><a href="regolamento.html" class="nav-link">Regolamento</a></li>
-                    <li class="nav-item"><a href="partners.html" class="nav-link">Partner</a></li>
-                    <li class="nav-item"><a href="deck-viewer.html" class="nav-link">Invia il tuo Deck</a></li>
+                    <li class="nav-item"><a href="hall-of-fame.html" class="nav-link">Hall Of Fame</a></li>
                     <li class="nav-item"><a href="contatti.html" class="nav-link">Contatti</a></li>
                     <li class="nav-item"><a href="admin-login.html" class="nav-link"><i class="fas fa-user-shield"></i>
                             Admin</a></li>
@@ -46,138 +46,101 @@
             <button class="theme-toggle" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Apri menu di navigazione" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
     <!-- Hero Section -->
+    <main id="main-content">
     <section class="hero" id="custom-hero">
         <div class="hero-content fade-in">
-            <h2 class="hero-title">Lega dello Stretto</h2>
-            <p class="hero-subtitle">La prima lega ufficiale di One Piece Card Game di Messina e Reggio Calabria</p>
+            <h1 class="hero-title">Battlegrounds League</h1>
+            <p class="hero-subtitle">La prima lega di Hearthstone Battlegrounds</p>
             <div class="hero-buttons">
-                <a href="#events" class="btn btn-primary">Prossimi Tornei</a>
+                <a href="tornei.html" class="btn btn-primary">Prossimi Tornei</a>
                 <a href="contatti.html" class="btn btn-secondary">Contattaci</a>
             </div>
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats">
-        <div class="container">
-            <div class="stats-container" id="statsContainer">
-                <div class="stat-box">
-                    <span class="counter" data-count="0">0</span>
+    <!-- Stats Bar -->
+    <section class="stats-bar">
+        <div class="container stats-flex">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-data">
+                    <span class="stat-number">11+</span>
                     <span class="stat-label">Giocatori</span>
                 </div>
-                <div class="stat-box">
-                    <span class="counter" data-count="0">0</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-data">
+                    <span class="stat-number">1+</span>
                     <span class="stat-label">Tornei Organizzati</span>
                 </div>
-                <div class="stat-box">
-                    <span class="counter" data-count="0">0</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-city"></i></div>
+                <div class="stat-data">
+                    <span class="stat-number">1+</span>
                     <span class="stat-label">Città</span>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="section-title">Perché Partecipare</h2>
-            <div class="features-container">
-                <div class="feature-card">
-                    <i class="fas fa-trophy"></i>
-                    <h3>Tornei Ufficiali</h3>
-                    <p>Partecipa ai tornei ufficiali della Lega dello Stretto e guadagna punti per la classifica
-                        regionale.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-users"></i>
-                    <h3>Community</h3>
-                    <p>Unisciti alla nostra community di appassionati e condividi la tua passione per i giochi.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-gem"></i>
-                    <h3>Premi Esclusivi</h3>
-                    <p>Vinci premi esclusivi, carte rare e gadget ufficiali.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Ranking</h3>
-                    <p>Scala la classifica e diventa uno dei migliori giocatori di Messina.</p>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-data">
+                    <span class="stat-label">Una Community</span>
+                    <span class="stat-sublabel">In Continua Crescita</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Events Section -->
-    <section class="events" id="events">
+    <section class="premium-feature-band" aria-labelledby="why-title">
         <div class="container">
-            <h2 class="section-title">Prossimi Tornei</h2>
-            <div class="events-container" id="eventsContainer">
-                <div class="event-card loading">
-                    <div class="loading-spinner">
-                        <i class="fas fa-spinner fa-spin"></i> Caricamento eventi...
+            <h2 id="why-title" class="premium-ribbon-title">Perche Partecipare</h2>
+            <div class="premium-feature-grid">
+                <article class="premium-feature-card">
+                    <div class="premium-feature-icon"><i class="fas fa-trophy"></i></div>
+                    <div>
+                        <h3>Tornei ufficiali</h3>
+                        <p>Partecipa agli eventi della lega e conquista rating per la classifica stagionale.</p>
                     </div>
-                </div>
-            </div>
-            <div class="events-action">
-                <a href="eventi.html" class="btn view-all">Vedi Tutti gli Eventi</a>
+                </article>
+                <article class="premium-feature-card">
+                    <div class="premium-feature-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <h3>Community</h3>
+                        <p>Entra in un gruppo locale di giocatori, eventi e sfide ricorrenti.</p>
+                    </div>
+                </article>
+                <article class="premium-feature-card">
+                    <div class="premium-feature-icon"><i class="fas fa-gem"></i></div>
+                    <div>
+                        <h3>Premi esclusivi</h3>
+                        <p>Accumula risultati, riscatti e riconoscimenti dedicati ai migliori piazzamenti.</p>
+                    </div>
+                </article>
+                <article class="premium-feature-card">
+                    <div class="premium-feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <h3>Ranking</h3>
+                        <p>Scala la classifica e rendi visibile il tuo percorso nella Battlegrounds League.</p>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
 
-    <!-- Rankings Section -->
-    <section class="rankings" id="rankings">
-        <div class="container">
-            <h2 class="section-title">Classifiche</h2>
-            <div class="rankings-container">
-                <div class="ranking-box">
-                    <h3 class="ranking-title">Top Players Regionali</h3>
-                    <div class="ranking-list" id="topPlayersRanking">
-                        <div class="ranking-item loading">
-                            <i class="fas fa-spinner"></i> Caricamento classifica...
-                        </div>
-                    </div>
-                    <a href="classifica.html" class="btn btn-primary">Classifica Completa</a>
-                </div>
-                <div class="ranking-box">
-                    <h3 class="ranking-title">Qualificati</h3>
-                    <div class="ranking-list" id="qualificatiList">
-                        <div class="ranking-item loading">
-                            <i class="fas fa-spinner"></i> Caricamento qualificati...
-                        </div>
-                    </div>
-                    <a href="classifica.html" class="btn btn-primary">Classifica Completa</a>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Partners Section -->
-    <section class="partners" id="partners">
-        <div class="container">
-            <h2 class="section-title">I Nostri Partner</h2>
-            <div class="partners-container">
-                <div class="partner-card">
-                    <div class="partner-logo-container">
-                        <img src="assets/img/allyoucanplay-logo.webp" alt="All You Can Play Logo" class="partner-logo">
-                    </div>
-                    <div class="partner-info">
-                        <h3>All You Can Play</h3>
-                        <p>Il nostro partner ufficiale per la vendita di carte e accessori. Trova tutto ciò che ti serve
-                            per il tuo mazzo!</p>
-                        <a href="https://allyoucanplay.eu/it" target="_blank" class="btn btn-primary partner-btn">Visita
-                            lo Store</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+
+    <!-- Sezione Eventi rimossa -->
+
+
+    <!-- Sezione Partner rimossa -->
 
     <!-- Contact Section -->
     <section id="contact" class="contact">
@@ -185,29 +148,12 @@
             <h2 class="section-title">Contatti</h2>
             <p class="section-description">Hai domande o vuoi partecipare ai nostri tornei? Contattaci!</p>
 
-            <div class="contact-container">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <p>redshiftg@gmail.com</p>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <p>+39 328 724 1502</p>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Via Nicola Fabrizi 11, Messina</p>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-clock"></i>
-                        <p>Mar-Dom: 17:00-01:00<br>Lun: Chiuso</p>
-                    </div>
-                </div>
+            <div class="contact-container" style="display: block; max-width: 800px; margin: 0 auto;">
                 <div class="contact-form">
                     <form id="contactForm" action="https://formspree.io/f/mzzrdrwe" method="POST">
+                        <!-- ... rest of the form ... -->
                         <input type="hidden" name="_subject"
-                            value="Nuovo messaggio dal sito Lega dello Stretto (Homepage)">
+                            value="Nuovo messaggio dal sito Battlegrounds League (Homepage)">
                         <input type="hidden" name="_next" value="index.html?contact_success=true">
                         <div class="form-group">
                             <label for="name">Nome e Cognome</label>
@@ -242,6 +188,8 @@
     </section>
 
     <!-- Footer -->
+    </main>
+
     <footer class="main-footer">
         <div class="include-footer"></div>
     </footer>
@@ -250,6 +198,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/home.js"></script>
+    <script src="assets/js/visual-fx.js"></script>
 </body>
 
 </html>

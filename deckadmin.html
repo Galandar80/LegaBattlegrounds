@@ -5,12 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schede Deck List</title>
-    <link rel="stylesheet" href="assets/css/one-piece-styles.css">
-    <script>
-        if (sessionStorage.getItem('adminAuthenticated') !== 'true') {
-            window.location.href = 'admin-login.html';
-        }
-    </script>
+    <link rel="stylesheet" href="assets/css/hearthstone-styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/admin-auth.js"></script>
+    <script>AdminAuth.requireAuth();</script>
     <style>
         /*
          * Stili globali

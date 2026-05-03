@@ -235,10 +235,10 @@ function initDeckViewer() {
 
                 const updated = { ...existing, nome, cognome, torneo, image_url: imageUrl, delete_hash: deleteHash || existing?.delete_hash || null };
                 await dbPut(updated);
-                showFeedback("Scheda aggiornata con successo.", "success");
+                showFeedback("Schieramento aggiornato con successo.", "success");
                 if (codeSection) codeSection.style.display = "block";
                 if (codeValue) codeValue.textContent = id;
-                alert(`IMPORTANTE:\nSalva questo codice per visualizzare o modificare la scheda in futuro:\n\n${id}`);
+                alert(`IMPORTANTE:\nSalva questo codice per visualizzare o modificare lo schieramento in futuro:\n\n${id}`);
             } else {
                 const id = generateId();
                 if ((imgInput.files || []).length) {
@@ -248,10 +248,10 @@ function initDeckViewer() {
                 }
                 const card = { id, nome, cognome, torneo, image_url: imageUrl, delete_hash: deleteHash };
                 await dbPut(card);
-                showFeedback("Scheda creata con successo.", "success");
+                showFeedback("Schieramento creato con successo.", "success");
                 if (codeSection) codeSection.style.display = "block";
                 if (codeValue) codeValue.textContent = id;
-                alert(`IMPORTANTE:\nSalva questo codice per visualizzare o modificare la scheda in futuro:\n\n${id}`);
+                alert(`IMPORTANTE:\nSalva questo codice per visualizzare o modificare lo schieramento in futuro:\n\n${id}`);
                 resetForm();
             }
         });

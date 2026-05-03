@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": true,
+    "statistiche": {
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "tornei": {
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "eventi": {
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "cups": {
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "hallOfFame": {
+      ".write": "auth != null && auth.token.admin === true"
+    }
+  }
+}
