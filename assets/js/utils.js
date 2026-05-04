@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="footer-links">
                     <h4>Social</h4>
                     <div class="social-links">
-                        <a href="#" style="margin-right: 15px;"><i class="fab fa-discord"></i> Discord</a><br>
-                        <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <a href="https://discord.gg/YHej49XbHn" target="_blank" rel="noopener noreferrer" style="margin-right: 15px;"><i class="fab fa-discord"></i> Discord</a><br>
+                        <a href="https://chat.whatsapp.com/Ey0ypo4rohjB9vQMJSyJOG" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>
                     </div>
                 </div>
             </div>
