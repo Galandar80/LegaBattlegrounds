@@ -858,7 +858,10 @@
                     let righe = [...iscrittiOnline, ...giocatoriArray];
 
                     if (searchTerm) {
-                        righe = righe.filter(item => item.name.toLowerCase().includes(searchTerm));
+                        righe = righe.filter(item => {
+                            const battleTag = item.iscrizione?.battleTag || item.giocatore?.battleTag || '';
+                            return item.name.toLowerCase().includes(searchTerm) || battleTag.toLowerCase().includes(searchTerm);
+                        });
                     }
 
                     if (ordinamento === 'nome') {
@@ -886,6 +889,10 @@
                                 <div class="giocatore-nome">${item.name}</div>
                                 <div class="giocatore-stats">
                                     <div class="giocatore-stat">
+                                        <div class="giocatore-stat-value">${iscrizione.battleTag || 'Mancante'}</div>
+                                        <div class="giocatore-stat-label">BattleTag</div>
+                                    </div>
+                                    <div class="giocatore-stat">
                                         <div class="giocatore-stat-value">Online</div>
                                         <div class="giocatore-stat-label">Origine</div>
                                     </div>
@@ -912,6 +919,10 @@
                         card.innerHTML = `
                             <div class="giocatore-nome">${giocatore.nome}</div>
                             <div class="giocatore-stats">
+                                <div class="giocatore-stat">
+                                    <div class="giocatore-stat-value">${giocatore.battleTag || '-'}</div>
+                                    <div class="giocatore-stat-label">BattleTag</div>
+                                </div>
                                 <div class="giocatore-stat">
                                     <div class="giocatore-stat-value">${giocatore.punti || 0}</div>
                                     <div class="giocatore-stat-label">Punti</div>

@@ -32,14 +32,28 @@
         return profile.nickname || fullNameFromProfile(profile) || fallbackNickname(user);
     }
 
+    function normalizeBattleTag(value) {
+        return String(value || '').trim();
+    }
+
+    function isValidBattleTag(value) {
+        return /^[^#\s][^#]*#\d+$/.test(normalizeBattleTag(value));
+    }
+
+    function battleTagError() {
+        return 'Inserisci il BattleTag completo nel formato Nome#1234.';
+    }
+
     function profileFromUser(user, data = {}) {
         const firstName = String(data.firstName || '').trim();
         const lastName = String(data.lastName || '').trim();
         const nickname = String(data.nickname || data.displayName || fallbackNickname(user)).trim();
+        const battleTag = normalizeBattleTag(data.battleTag);
         const profile = {
             firstName,
             lastName,
             nickname,
+            battleTag,
             displayName: nickname || [firstName, lastName].filter(Boolean).join(' ') || fallbackNickname(user),
             email: user.email || '',
             updatedAt: new Date().toISOString()
@@ -136,6 +150,7 @@
             document.getElementById('firstName').required = isRegister;
             document.getElementById('lastName').required = isRegister;
             document.getElementById('nickname').required = isRegister;
+            document.getElementById('battleTag').required = isRegister;
             form.querySelector('button[type="submit"]').textContent = isRegister ? 'Registrati' : 'Accedi';
             toggleMode.textContent = isRegister ? 'Hai gia un account? Accedi' : 'Non hai un account? Registrati';
             setMessage(message, '');
@@ -145,6 +160,7 @@
             document.getElementById('profileFirstName').value = profile.firstName || '';
             document.getElementById('profileLastName').value = profile.lastName || '';
             document.getElementById('profileNickname').value = profile.nickname || profile.displayName || '';
+            document.getElementById('profileBattleTag').value = profile.battleTag || '';
         }
 
         function showLoggedIn(profile) {
@@ -170,10 +186,16 @@
             const profileData = {
                 firstName: document.getElementById('firstName').value.trim(),
                 lastName: document.getElementById('lastName').value.trim(),
-                nickname: document.getElementById('nickname').value.trim()
+                nickname: document.getElementById('nickname').value.trim(),
+                battleTag: normalizeBattleTag(document.getElementById('battleTag').value)
             };
             const email = document.getElementById('accountEmail').value.trim();
             const password = document.getElementById('accountPassword').value;
+
+            if (mode === 'register' && !isValidBattleTag(profileData.battleTag)) {
+                setMessage(message, battleTagError(), 'error');
+                return;
+            }
 
             setMessage(message, 'Operazione in corso...');
 
@@ -216,11 +238,17 @@
                 event.preventDefault();
                 const user = auth.currentUser;
                 if (!user) return;
+                const battleTag = normalizeBattleTag(document.getElementById('profileBattleTag').value);
+                if (!isValidBattleTag(battleTag)) {
+                    setMessage(profileMessage, battleTagError(), 'error');
+                    return;
+                }
                 setMessage(profileMessage, 'Salvataggio in corso...');
                 saveUserProfile(user, {
                     firstName: document.getElementById('profileFirstName').value.trim(),
                     lastName: document.getElementById('profileLastName').value.trim(),
-                    nickname: document.getElementById('profileNickname').value.trim()
+                    nickname: document.getElementById('profileNickname').value.trim(),
+                    battleTag
                 })
                     .then(profile => {
                         fillProfileForm(profile);
@@ -258,12 +286,22 @@
         }
 
         const user = auth.currentUser;
-        const profile = await ensureUserProfile(user);
+        let profile = await ensureUserProfile(user);
+        let battleTag = normalizeBattleTag(profile.battleTag);
+
+        if (!isValidBattleTag(battleTag)) {
+            battleTag = normalizeBattleTag(window.prompt('Inserisci il tuo BattleTag Blizzard per iscriverti al torneo (es. Nome#1234):'));
+            if (!isValidBattleTag(battleTag)) {
+                throw new Error(battleTagError());
+            }
+            profile = await saveUserProfile(user, { battleTag });
+        }
 
         await database.ref(`iscrizioni/${torneoId}/${user.uid}`).set({
             firstName: profile.firstName || '',
             lastName: profile.lastName || '',
             nickname: profile.nickname || profile.displayName || fallbackNickname(user),
+            battleTag,
             displayName: displayNameFromProfile(profile, user),
             email: user.email || '',
             status: 'confirmed',

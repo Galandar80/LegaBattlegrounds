@@ -712,10 +712,15 @@ function caricaIscrizioniTorneo(torneoId) {
                 const card = document.createElement('div');
                 card.className = 'giocatore-card';
                 const safeName = backendHtml(iscrizione.nickname || iscrizione.displayName || iscrizione.email || 'Utente registrato');
+                const safeBattleTag = backendHtml(iscrizione.battleTag || 'Mancante');
                 const safeStatus = backendHtml(iscrizione.status || 'confirmed');
                 card.innerHTML = `
                     <div class="giocatore-nome">${safeName}</div>
                     <div class="giocatore-stats">
+                        <div class="giocatore-stat">
+                            <div class="giocatore-stat-value">${safeBattleTag}</div>
+                            <div class="giocatore-stat-label">BattleTag</div>
+                        </div>
                         <div class="giocatore-stat">
                             <div class="giocatore-stat-value">${safeStatus}</div>
                             <div class="giocatore-stat-label">Stato</div>
@@ -750,6 +755,7 @@ function importaIscrittoComeGiocatore(torneoId, uid) {
 
             const nuovoGiocatore = {
                 nome: iscrizione.nickname || iscrizione.displayName || iscrizione.email || 'Giocatore',
+                battleTag: iscrizione.battleTag || '',
                 punti: 0,
                 posizione: 0,
                 qualificato: false,
