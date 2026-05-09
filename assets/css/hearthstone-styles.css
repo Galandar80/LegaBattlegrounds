@@ -5247,6 +5247,160 @@ body::after {
   padding: clamp(1rem, 2.5vw, 1.6rem);
 }
 
+.cup-rules-section .regolamento-content {
+  margin-bottom: 0;
+}
+
+.cup-rules-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: clamp(1rem, 2.8vw, 1.6rem);
+  border: 1px solid rgba(217, 168, 58, 0.42);
+  background:
+    radial-gradient(circle at 10% 0, rgba(255, 221, 96, 0.12), transparent 16rem),
+    linear-gradient(135deg, rgba(44, 17, 60, 0.9), rgba(11, 5, 18, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(255, 238, 172, 0.08), 0 18px 38px rgba(0, 0, 0, 0.22);
+}
+
+.cup-rules-hero h3 {
+  margin: 0.2rem 0 0.55rem;
+  color: #fff1bd;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+.cup-rules-hero p {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(249, 246, 229, 0.84) !important;
+  line-height: 1.65;
+}
+
+.cup-rules-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0.8rem 1.05rem;
+  color: #2a1708;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  background: linear-gradient(180deg, #ffe690, #c78323);
+  border: 1px solid rgba(255, 235, 157, 0.72);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.cup-rules-link:hover {
+  color: #1d0e04;
+  transform: translateY(-1px);
+}
+
+.cup-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+.cup-rule-card {
+  position: relative;
+  min-height: 210px;
+  padding: 1rem;
+  border: 1px solid var(--premium-line);
+  background:
+    linear-gradient(180deg, rgba(58, 24, 74, 0.36), rgba(18, 7, 28, 0.82)),
+    rgba(12, 5, 19, 0.88);
+  overflow: hidden;
+}
+
+.cup-rule-card::after {
+  content: '';
+  position: absolute;
+  inset: auto -42px -58px auto;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 221, 96, 0.12), transparent 68%);
+  pointer-events: none;
+}
+
+.cup-rule-card i {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.85rem;
+  color: #ffe78d;
+  background: rgba(217, 168, 58, 0.13);
+  border: 1px solid rgba(217, 168, 58, 0.35);
+}
+
+.cup-rule-number {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.9rem;
+  color: rgba(255, 230, 144, 0.22);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.cup-rule-card h3 {
+  margin: 0 0 0.45rem;
+  color: #ffe478;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.cup-rule-card p {
+  margin: 0;
+  color: rgba(249, 246, 229, 0.82) !important;
+  line-height: 1.5;
+}
+
+.cup-validation-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(255, 221, 96, 0.38);
+  background: linear-gradient(90deg, rgba(217, 168, 58, 0.16), rgba(28, 10, 42, 0.68));
+}
+
+.cup-validation-note > i {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  color: #ffe78d;
+  background: rgba(10, 4, 18, 0.52);
+  border: 1px solid rgba(255, 221, 96, 0.36);
+}
+
+.cup-validation-note h3 {
+  margin: 0 0 0.35rem;
+  color: #fff1bd;
+  font-size: 1.05rem;
+}
+
+.cup-validation-note p {
+  margin: 0;
+  color: rgba(249, 246, 229, 0.86) !important;
+  line-height: 1.6;
+}
+
+.cup-rule-card,
+.cup-rules-link,
+.cup-validation-note,
+.cup-validation-note > i {
+  border-radius: 4px;
+}
+
 .main-nav.active .nav-list,
 .main-nav.active ul {
   display: grid !important;
@@ -5277,6 +5431,29 @@ body::after {
 
   .premium-mini-badges {
     justify-content: flex-start;
+  }
+
+  .cup-rules-hero,
+  .cup-validation-note {
+    grid-template-columns: 1fr;
+  }
+
+  .cup-rules-link {
+    width: 100%;
+  }
+
+  .cup-rules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .cup-rules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cup-rule-card {
+    min-height: auto;
   }
 }
 
